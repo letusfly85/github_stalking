@@ -1,3 +1,5 @@
+https://travis-ci.org/letusfly85/github_stalking.svg?branch=maste://travis-ci.org/letusfly85/github_stalking.svg?branch=master
+
 # GithubStalking
 
 **TODO: Add description**
