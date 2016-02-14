@@ -7,15 +7,25 @@ defmodule GithubStalking.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     escript: escript,
      deps: deps]
+  end
+
+  def escript do
+    [main_module: GithubStalking.CLI]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :tentacat]]
+    [applications: applications(Mix.env)]
   end
+
+  #TODO
+  #defp applications(:dev), do: applications(:all) ++ [:remix]
+  #defp applications(:test), do: applications(:all) ++ [:remix]
+  defp applications(_all), do: [:logger, :tentacat]
 
   # Dependencies can be Hex packages:
   #
@@ -27,6 +37,9 @@ defmodule GithubStalking.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:tentacat, "~> 0.2"}]
+    [#{:remix, "~> 0.0.1", only: [:dev, :test]},
+     #{:remix, git: "https://github.com/letusfly85/remix.git", only: [:dev, :test]},
+     {:mix_test_watch, "~> 0.2", only: :dev},
+     {:tentacat, "~> 0.2"}]
   end
 end

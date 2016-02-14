@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/letusfly85/github_stalking.svg?branch=maste://travis-ci.org/letusfly85/github_stalking.svg?branch=master)](https://travis-ci.org/letusfly85/github_stalking)
+
 # GithubStalking
 
 **TODO: Add description**
