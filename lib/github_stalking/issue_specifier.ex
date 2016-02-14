@@ -21,21 +21,23 @@ defmodule GithubStalking.IssueSpecifier do
   end
 
   @doc"""
+  find issue detail
+  """
+  def cur_issue(owner, repo, pre_issue) do
+    {number, _} = pre_issue
+    pre_issue_number = Integer.to_string(number)
+    
+    Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
+  end
+
+  @doc"""
   search closed issues compared with pre searched
   """
   def closed_issues(owner, repo, pre_issues) do
     Enum.filter(Map.to_list(pre_issues), fn(pre_issue) ->
-      {number, _} = pre_issue
-      pre_issue_number = Integer.to_string(number)
-      cur_issue = Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
-
-      cur_issue["state"] == "closed"
+      cur_issue(owner, repo, pre_issue)["state"] == "closed"
     end) |> Enum.reduce([], fn(pre_issue, issues) ->
-      {number, _} = pre_issue
-      pre_issue_number = Integer.to_string(number)
-      cur_issue = Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
-      
-      [cur_issue|issues]
+      [cur_issue(owner, repo, pre_issue)|issues]
     end)
   end
 
