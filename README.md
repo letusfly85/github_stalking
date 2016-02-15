@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/letusfly85/github_stalking.svg?branch=master)](https://travis-ci.org/letusfly85/github_stalking)
+[![Build Status](https://travis-ci.org/letusfly85/github_stalking.svg?branch=master)](https://travis-ci.org/letusfly85/github_stalking)    [![Deps Status](https://beta.hexfaktor.org/badge/all/github/letusfly85/github_stalking.svg)](https://beta.hexfaktor.org/github/letusfly85/github_stalking)
 
 # GithubStalking
 
