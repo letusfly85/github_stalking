@@ -9,6 +9,40 @@ defmodule GithubStalking.Riak do
 
   @doc"""
   """
+  def find_pre_issues() do
+    {:ok, keys} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+
+    issues_numbers = keys |> Enum.reduce([], fn(key, acc) ->
+      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", key)
+      issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
+      if (hd issue_numbers.numbers) != nil do
+        [issue_numbers|acc]
+      end
+    end)
+
+    result = issues_numbers
+    |> Enum.filter(fn(issue_numbers) ->
+      issue = find_pre_issues_numbers(issue_numbers)
+      (hd issue) != nil
+    end)
+    |> Enum.reduce([], fn(issue_numbers, acc) ->
+      find_pre_issues_numbers(issue_numbers) ++ acc
+    end)
+
+    result
+  end
+  
+  @doc"""
+  """
+  def find_pre_issues_numbers(issue_numbers) do
+    issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
+      path = issue_numbers.repo_full_path <> "/" <> to_string(number)
+      [Riak.find(GithubStalking.Riak.get_pid, "issue_history", path)|acc]
+    end)
+  end
+
+  @doc"""
+  """
   def register_numbers(issues, owner, repo) do
     repo_full_path = owner <> "/" <> repo
     numbers = issues |> Enum.reduce([], fn(issue, acc) ->
@@ -29,12 +63,4 @@ defmodule GithubStalking.Riak do
     end)
   end
 
-  @doc"""
-  """
-  def find_pre_issues(issue_numbers) do
-    issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
-      path = issue_numbers.repo_full_path <> "/" <> to_string(number)
-      [Riak.find(GithubStalking.Riak.get_pid, "issue_history", path)|acc]
-    end)
-  end
 end
