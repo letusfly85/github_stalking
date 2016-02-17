@@ -1,16 +1,22 @@
 defmodule GithubStalking.RiakTest do
   use ExUnit.Case
 
-  #GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
-  #GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-  #GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
   test "get repos from issue_numbers" do
     issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
     GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
     GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
 
     pre_issues_repos = GithubStalking.Riak.find_pre_issues_repos()
-    assert pre_issues_repos == ["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"]
+    assert Enum.sort(pre_issues_repos) == Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"])
+  end
+
+  test "get issue numbers from issue_numbers" do
+    issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
+    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
+
+    issue_numbers = GithubStalking.Riak.issues_numbers(["letusfly85/github_stalking"])
+    assert (hd issue_numbers).numbers == [13, 12, 11]
+    assert (hd issue_numbers).repo_full_path == "letusfly85/github_stalking"
   end
 
   test "get unique issue from issue_history" do
