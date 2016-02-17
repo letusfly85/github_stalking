@@ -1,20 +1,9 @@
 defmodule GithubStalking.RiakTest do
   use ExUnit.Case
 
-  test "get pre issues" do
-    issues = [%{"number" => 14}, %{"number" => 15}, %{"number" => 16}]
-    GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
-    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-    GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
-
-    list = GithubStalking.Riak.find_pre_issues()
-    |> Enum.reduce([], fn(obj, acc) ->
-         issue = Poison.decode!(obj.data, as: %GithubStalking.Issue{})
-         [issue.number|acc]
-       end)
-   
-    assert [16, 15, 14] == list
-  end
+  #GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
+  #GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
+  #GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
 
   test "get issue numbers of a repository from issue_numbers" do
     issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]

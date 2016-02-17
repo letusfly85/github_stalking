@@ -9,35 +9,38 @@ defmodule GithubStalking.Riak do
 
   @doc"""
   """
-  def find_pre_issues() do
-    {:ok, keys} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+  def find_pre_issues_repos() do
+    {:ok, pre_issues_repos} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+    pre_issues_repos
+  end
 
-    issues_numbers = keys |> Enum.reduce([], fn(key, acc) ->
+  @doc"""
+  """
+  def issues_numbers(repo_full_path) do
+    repo_full_path |> Enum.reduce([], fn(key, acc) ->
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", key)
       issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
       if (hd issue_numbers.numbers) != nil do
         [issue_numbers|acc]
       end
     end)
-
-    result = issues_numbers
-    |> Enum.filter(fn(issue_numbers) ->
-      issue = find_pre_issues_numbers(issue_numbers)
-      (hd issue) != nil
-    end)
-    |> Enum.reduce([], fn(issue_numbers, acc) ->
-      find_pre_issues_numbers(issue_numbers) ++ acc
-    end)
-
-    result
   end
-  
+
   @doc"""
   """
   def find_pre_issues_numbers(issue_numbers) do
     issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
       [Riak.find(GithubStalking.Riak.get_pid, "issue_history", path)|acc]
+    end)
+  end
+
+  @doc"""
+  """
+  def find_pre_issues_numbers_map(issue_numbers) do
+    find_pre_issues_numbers(issue_numbers)
+    |> Enum.reduce(%{}, fn(pre_issue, acc) ->
+      Map.put(acc, pre_issue["number"], pre_issue)
     end)
   end
 
