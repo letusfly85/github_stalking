@@ -12,7 +12,7 @@ defmodule GithubStalking.Mixfile do
   end
 
   def escript do
-    [main_module: GithubStalking.CLI]
+    [main_module: GithubStalking]
   end
 
   # Configuration for the OTP application
