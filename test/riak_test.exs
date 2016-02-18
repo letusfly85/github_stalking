@@ -19,6 +19,27 @@ defmodule GithubStalking.RiakTest do
     assert (hd issue_numbers).repo_full_path == "letusfly85/github_stalking"
   end
 
+  test "get pre issues from issue_numbers" do
+    issues = [%{"number" => 14}, %{"number" => 15}, %{"number" => 16}]
+    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
+    GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
+
+    issue_numbers = %GithubStalking.Issues{repo_full_path: "letusfly85/github_stalking", numbers: [14, 15, 16]}
+    pre_issues = GithubStalking.Riak.find_pre_issues_numbers(issue_numbers)
+    assert length(pre_issues) == 3
+  end
+
+  test "get pre issues number map from issue_numbers" do
+    issues = [%{"number" => 14}, %{"number" => 15}, %{"number" => 16}]
+    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
+    GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
+
+    issue_numbers = %GithubStalking.Issues{repo_full_path: "letusfly85/github_stalking", numbers: [14, 15, 16]}
+    pre_issues = GithubStalking.Riak.find_pre_issues_numbers_map(issue_numbers)
+
+    assert 1 == 1
+  end
+
   test "get unique issue from issue_history" do
     issues = [%{"number" => 6}]
     GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
