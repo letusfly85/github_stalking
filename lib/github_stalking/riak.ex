@@ -1,6 +1,7 @@
 defmodule GithubStalking.Riak do
 
   @doc"""
+  pid for riak connection
   """
   def get_pid do
     {:ok, pid } = Riak.Connection.start('127.0.0.1', 8087)    
@@ -8,6 +9,7 @@ defmodule GithubStalking.Riak do
   end
 
   @doc"""
+  repository list you want to stalk
   """
   def find_pre_issues_repos() do
     {:ok, pre_issues_repos} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
@@ -15,10 +17,11 @@ defmodule GithubStalking.Riak do
   end
 
   @doc"""
+  search issue list from issue_numbers
   """
   def issues_numbers(repo_full_path_list) do
-    repo_full_path_list |> Enum.reduce([], fn(key, acc) ->
-      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", key)
+    repo_full_path_list |> Enum.reduce([], fn(repo_full_path, acc) ->
+      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
       issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
       if (hd issue_numbers.numbers) != nil do
         [issue_numbers|acc]
@@ -27,8 +30,9 @@ defmodule GithubStalking.Riak do
   end
 
   @doc"""
+  find pre issues list of a specified repository
   """
-  def find_pre_issues_numbers(issue_numbers) do
+  def find_pre_issues(issue_numbers) do
     issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
@@ -38,9 +42,10 @@ defmodule GithubStalking.Riak do
   end
 
   @doc"""
+  find pre issues map of a specified repository
   """
-  def find_pre_issues_numbers_map(issue_numbers) do
-    find_pre_issues_numbers(issue_numbers)
+  def find_pre_issues_map(issue_numbers) do
+    find_pre_issues(issue_numbers)
     |> Enum.reduce(%{}, fn(pre_issue, acc) ->
       Map.put(acc, pre_issue.number, pre_issue)
     end)

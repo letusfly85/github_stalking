@@ -25,7 +25,7 @@ defmodule GithubStalking.RiakTest do
     GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
 
     issue_numbers = %GithubStalking.Issues{repo_full_path: "letusfly85/github_stalking", numbers: [14, 15, 16]}
-    pre_issues = GithubStalking.Riak.find_pre_issues_numbers(issue_numbers)
+    pre_issues = GithubStalking.Riak.find_pre_issues(issue_numbers)
     assert length(pre_issues) == 3
   end
 
@@ -35,7 +35,7 @@ defmodule GithubStalking.RiakTest do
     GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
 
     issue_numbers = %GithubStalking.Issues{repo_full_path: "letusfly85/github_stalking", numbers: [14, 15, 16]}
-    pre_issues = GithubStalking.Riak.find_pre_issues_numbers_map(issue_numbers)
+    pre_issues = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
 
     assert pre_issues[14].number == 14
   end
@@ -56,7 +56,7 @@ defmodule GithubStalking.RiakTest do
     repo_full_path = "letusfly85/github_stalking"
     issues_numbers = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: [11,12,13]}
 
-    list = GithubStalking.Riak.find_pre_issues_numbers(issues_numbers)
+    list = GithubStalking.Riak.find_pre_issues(issues_numbers)
     |> Enum.reduce([], fn(issue, acc) ->
       [issue.number|acc]
     end)
