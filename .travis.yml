@@ -1,3 +1,5 @@
+services:
+  - riak
 language: elixir
 elixir:
     - 1.2.1
