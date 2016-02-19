@@ -30,7 +30,10 @@ defmodule GithubStalking.RiakTest do
   end
 
   test "get pre issues number map from issue_numbers" do
-    issues = [%{"number" => 14}, %{"number" => 15}, %{"number" => 16}]
+    issue14 = Factory.attributes_for(:issue, number: 14) |> Factory.parametrize
+    issue15 = Factory.attributes_for(:issue, number: 15) |> Factory.parametrize
+    issue16 = Factory.attributes_for(:issue, number: 16) |> Factory.parametrize
+    issues = [issue14, issue15, issue16]
     GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
     GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
 
