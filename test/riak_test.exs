@@ -24,7 +24,7 @@ defmodule GithubStalking.RiakTest do
 
   test "get issue numbers from issue_numbers" do
     issue_numbers = GithubStalking.Riak.issues_numbers(["letusfly85/github_stalking"])
-    assert (hd issue_numbers).numbers == [13, 12, 11]
+    assert (hd issue_numbers).numbers == [6, 7, 8, 11, 12, 13, 14, 15, 16]
     assert (hd issue_numbers).repo_full_path == "letusfly85/github_stalking"
   end
 
@@ -65,6 +65,6 @@ defmodule GithubStalking.RiakTest do
     GithubStalking.Riak.register_numbers(issues, "letusfly85", "github_stalking")
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-    assert issues_numbers.numbers == [8, 7, 6]
+    assert issues_numbers.numbers == [6, 7, 8, 11, 12, 13, 14, 15, 16]
   end
 end
