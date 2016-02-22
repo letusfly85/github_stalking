@@ -14,7 +14,8 @@ defmodule GithubStalking.IssueSpecifier do
       number = cur_issue["number"]
       pre_issue = pre_issues[number]
 
-      if cur_issue["updated_at"] > pre_issue["update_at"] do
+      #if cur_issue["updated_at"] > pre_issue["updated_at"] do
+      if cur_issue["updated_at"] > pre_issue.updated_at do
         [cur_issue|issues]
       end
     end)
