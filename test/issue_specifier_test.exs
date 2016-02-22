@@ -5,7 +5,6 @@ defmodule GithubStalking.IssueSpecifierTest do
     pre_issue = %GithubStalking.Issue{number: 1, updated_at: "2016-02-13T01:05:18Z"}
     pre_issues = %{1 => pre_issue} 
     
-    IO.inspect(pre_issue)
     issues = GithubStalking.IssueSpecifier.updated_open_issues("letusfly85", "github_stalking", pre_issues)
 
     assert length(issues) == 1

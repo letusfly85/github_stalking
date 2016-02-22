@@ -1,5 +1,7 @@
 defmodule GithubStalking.IssueSpecifier do
-  @client Tentacat.Client.new
+  @client Tentacat.Client.new(
+      Application.get_env(:github_stalking, :access_token) || System.get_env("access_token")
+  )
 
   @doc"""
   search updated issues from pre searched
