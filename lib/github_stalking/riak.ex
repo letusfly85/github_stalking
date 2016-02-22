@@ -27,6 +27,8 @@ defmodule GithubStalking.Riak do
         if (hd issue_numbers.numbers) != nil do
           [issue_numbers|acc]
         end
+      else
+        acc
       end
     end)
   end
@@ -57,7 +59,11 @@ defmodule GithubStalking.Riak do
   """
   def register_numbers(issues, owner, repo) do
     repo_full_path = owner <> "/" <> repo
-    pre_numbers = (hd issues_numbers([repo_full_path])).numbers
+    pre_numbers = []
+    pre_issues = issues_numbers([repo_full_path])
+    if pre_issues != nil and pre_issues != [] do
+      pre_numbers = (hd issues_numbers([repo_full_path])).numbers
+    end
 
     numbers = issues |> Enum.reduce(pre_numbers, fn(issue, acc) ->
       [issue["number"]|acc] 
