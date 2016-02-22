@@ -22,9 +22,13 @@ defmodule GithubStalking.Riak do
   def issues_numbers(repo_full_path_list) do
     repo_full_path_list |> Enum.reduce([], fn(repo_full_path, acc) ->
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
-      issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-      if (hd issue_numbers.numbers) != nil do
-        [issue_numbers|acc]
+      if obj != nil do
+        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
+        if (hd issue_numbers.numbers) != nil do
+          [issue_numbers|acc]
+        end
+      else
+        acc
       end
     end)
   end
@@ -55,9 +59,15 @@ defmodule GithubStalking.Riak do
   """
   def register_numbers(issues, owner, repo) do
     repo_full_path = owner <> "/" <> repo
-    numbers = issues |> Enum.reduce([], fn(issue, acc) ->
+    pre_numbers = []
+    pre_issues = issues_numbers([repo_full_path])
+    if pre_issues != nil and pre_issues != [] do
+      pre_numbers = (hd issues_numbers([repo_full_path])).numbers
+    end
+
+    numbers = issues |> Enum.reduce(pre_numbers, fn(issue, acc) ->
       [issue["number"]|acc] 
-    end)
+    end) |> Enum.uniq() |> Enum.sort()
     issues_numbers = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
     Riak.put(get_pid, obj)

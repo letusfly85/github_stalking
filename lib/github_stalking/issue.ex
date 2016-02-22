@@ -1,4 +1,4 @@
 defmodule GithubStalking.Issue do
   @derive [Poison.Encoder]
-  defstruct [:number, :title]
+  defstruct [:number, :title, :updated_at]
 end
