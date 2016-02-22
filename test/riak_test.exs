@@ -65,6 +65,6 @@ defmodule GithubStalking.RiakTest do
     GithubStalking.Riak.register_numbers(issues, "letusfly85", "github_stalking")
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-    assert [8, 7, 6] == issues_numbers.numbers
+    assert issues_numbers.numbers == [8, 7, 6]
   end
 end
