@@ -7,8 +7,6 @@ defmodule GithubStalking.IssueSpecifier do
   search updated issues from pre searched
   """
   def updated_open_issues(owner, repo, pre_issues) do
-    IO.inspect(System.get_env("access_token") || Application.get_env(:github_stalking, :access_token))
-    IO.inspect("######################")
     cur_issues = Tentacat.Issues.filter(owner, repo, %{state: "open"}, @client)
 
     Enum.filter(cur_issues, fn(cur_issue) ->
