@@ -23,8 +23,7 @@ defmodule GithubStalking.Riak do
     repo_full_path_list |> Enum.reduce([], fn(repo_full_path, acc) ->
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
       issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-      #if (hd issue_numbers.numbers) != nil do
-      if (1 == 1) != nil do
+      if (hd issue_numbers.numbers) != nil do
         [issue_numbers|acc]
       end
     end)
