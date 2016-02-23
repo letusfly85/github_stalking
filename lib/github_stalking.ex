@@ -1,13 +1,15 @@
 defmodule GithubStalking do
   def main(args) do
-    Enum.each(args, fn(arg) ->
-      IO.inspect(arg)
-    end)
-  end
-end
+    {options, _, _} = OptionParser.parse(args,
+      switches: [register: :string, collect: :string],
+      aliases:  [r: :register,      c: :collect]
+    )
 
-defmodule GithubStalking.CLI do
-  def main(args) do
-    IO.puts "#TODO github stalking"
+    try do
+        GithubStalking.Runner.run(options)
+    rescue
+      e in RuntimeError -> e
+        IO.puts e.message
+    end
   end
 end
