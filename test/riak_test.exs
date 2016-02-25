@@ -14,6 +14,8 @@ defmodule GithubStalking.RiakTest do
     GithubStalking.Riak.register_numbers(issues2, "letusfly85",  "github_stalking")
     GithubStalking.Riak.register_numbers(issues2, "letusfly105", "bitbucket_stalking")
 
+    Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", "octocat/Spoon-Knife") 
+
     :ok
   end
 
@@ -66,5 +68,17 @@ defmodule GithubStalking.RiakTest do
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
     assert issues_numbers.numbers == Enum.to_list 6..16
+  end
+
+  test "register repo" do
+    repo_full_path = "octocat/Spoon-Knife"
+    result = GithubStalking.Riak.register_repo(repo_full_path)
+    assert :ok == result
+  end
+
+  test "register already exists repo" do
+    repo_full_path = "letusfly85/github_stalking"
+    result = GithubStalking.Riak.register_repo(repo_full_path)
+    assert :error == result
   end
 end
