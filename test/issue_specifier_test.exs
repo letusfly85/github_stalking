@@ -19,4 +19,8 @@ defmodule GithubStalking.IssueSpecifierTest do
     assert length(issues) >= 1
     assert hd(issues)["title"] == "[module]search still open and updated issue list from a github repository"
   end
+
+  test "should collect one item from a repository" do
+    assert 1 == 1
+  end
 end

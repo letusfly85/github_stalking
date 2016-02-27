@@ -43,4 +43,23 @@ defmodule GithubStalking.IssueSpecifier do
     end)
   end
 
+  @doc"""
+  TODO
+  """
+  def collect_repos_info do
+    GithubStalking.Repository.find_pre_issues_repos()
+    |> GithubStalking.Riak.issues_numbers
+    |> Enum.each(fn(issue_numbers) ->
+         repo_full_path = issue_numbers.repo_full_path
+         pre_issues_map = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
+
+         if (length pre_issues_map) > 0 do
+           owner = (hd issue_numbers).owner
+           repo  = (hd issue_numbers).repo
+
+           updated_open_issues(owner, repo, pre_issues_map)
+         end
+       end)
+  end
+
 end

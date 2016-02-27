@@ -19,10 +19,6 @@ defmodule GithubStalking.RiakTest do
     :ok
   end
 
-  test "get repos from issue_numbers" do
-    pre_issues_repos = GithubStalking.Riak.find_pre_issues_repos()
-    assert Enum.sort(pre_issues_repos) == Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"])
-  end
 
   test "get issue numbers from issue_numbers" do
     issue_numbers = GithubStalking.Riak.issues_numbers(["letusfly85/github_stalking"])

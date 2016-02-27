@@ -2,9 +2,18 @@ defmodule GithubStalking.RepositoryTest do
   use ExUnit.Case
   
   setup_all do
+    issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
+    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
+    GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
+
     Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", "octocat/Spoon-Knife") 
 
     :ok
+  end
+
+  test "get repos from issue_numbers" do
+    pre_issues_repos = GithubStalking.Repository.find_pre_issues_repos()
+    assert Enum.sort(pre_issues_repos) == Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"])
   end
 
   test "register repo" do

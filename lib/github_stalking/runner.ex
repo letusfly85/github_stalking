@@ -5,9 +5,7 @@ defmodule GithubStalking.Runner do
         GithubStalking.Repository.register_repo(repo_full_path)
 
       %{:register => nil, :collect => collect} -> 
-        #TODO #22
-        #GithubStalking.collect_repos_info
-        nil
+        GithubStalking.IssueSpecifier.collect_repos_info
     end
   end
 end

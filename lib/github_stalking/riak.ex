@@ -9,14 +9,6 @@ defmodule GithubStalking.Riak do
   end
 
   @doc"""
-  repository list you want to stalk
-  """
-  def find_pre_issues_repos() do
-    {:ok, pre_issues_repos} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
-    pre_issues_repos
-  end
-
-  @doc"""
   search issue list from issue_numbers
   """
   def issues_numbers(repo_full_path_list) do
