@@ -12,8 +12,9 @@ defmodule GithubStalking.RepositoryTest do
   end
 
   test "get repos from issue_numbers" do
-    pre_issues_repos = GithubStalking.Repository.find_pre_issues_repos()
-    assert Enum.sort(pre_issues_repos) == Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"])
+    pre_issues_repos = GithubStalking.Repository.target_repos()
+    assert Enum.sort(pre_issues_repos) == 
+      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking", "octocat/Spoon-Knife"])
   end
 
   test "register repo" do
@@ -27,4 +28,5 @@ defmodule GithubStalking.RepositoryTest do
     result = GithubStalking.Repository.register_repo(repo_full_path)
     assert :error == result
   end
+
 end

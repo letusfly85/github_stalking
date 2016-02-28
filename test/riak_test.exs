@@ -2,6 +2,14 @@ defmodule GithubStalking.RiakTest do
   use ExUnit.Case
   
   setup_all do
+    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+    case result do
+      {:ok, repositories} ->
+        Enum.each(repositories, fn(repository) ->
+          Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", repository)
+        end)
+    end
+
     issues = Enum.to_list 6..16
     |> Enum.reduce([], fn(elem, acc) ->
       issue = Factory.attributes_for(:issue, number: elem) |> Factory.parametrize
@@ -13,8 +21,6 @@ defmodule GithubStalking.RiakTest do
     issues2 = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
     GithubStalking.Riak.register_numbers(issues2, "letusfly85",  "github_stalking")
     GithubStalking.Riak.register_numbers(issues2, "letusfly105", "bitbucket_stalking")
-
-    Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", "octocat/Spoon-Knife") 
 
     :ok
   end
