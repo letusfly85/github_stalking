@@ -4,6 +4,16 @@ defmodule GithubStalking.IssueSpecifier do
   )
 
   @doc"""
+  """
+  def updated_open_issues(repo_full_path, pre_issues) do
+    ary = String.split(repo_full_path, "/")
+    owner = Enum.at(ary, 0)
+    repo  = Enum.at(ary, 1)
+
+    updated_open_issues(owner, repo, pre_issues)
+  end
+
+  @doc"""
   search updated issues from pre searched
   """
   def updated_open_issues(owner, repo, pre_issues) do
@@ -44,7 +54,6 @@ defmodule GithubStalking.IssueSpecifier do
   end
 
   @doc"""
-  TODO
   """
   def collect_repos_info do
     GithubStalking.Repository.target_repos()
@@ -53,11 +62,8 @@ defmodule GithubStalking.IssueSpecifier do
          repo_full_path = issue_numbers.repo_full_path
          pre_issues_map = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
 
-         owner = (hd issue_numbers).owner
-         repo  = (hd issue_numbers).repo
-
-         issues = updated_open_issues(owner, repo, pre_issues_map)
-         GithubStalking.Riak.register(issues, owner, repo)
+         issues = updated_open_issues(repo_full_path, pre_issues_map)
+         GithubStalking.Riak.register(repo_full_path, issues)
        end)
   end
 

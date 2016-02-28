@@ -16,7 +16,7 @@ defmodule GithubStalking.RiakTest do
       [issue|acc]
     end)
     GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-    GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
+    GithubStalking.Riak.register("letusfly85", "github_stalking", issues)
 
     issues2 = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
     GithubStalking.Riak.register_numbers(issues2, "letusfly85",  "github_stalking")

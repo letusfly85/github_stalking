@@ -11,16 +11,14 @@ defmodule GithubStalking.RepositoryTest do
     :ok
   end
 
-  test "get repos from issue_numbers" do
-    pre_issues_repos = GithubStalking.Repository.target_repos()
-    assert Enum.sort(pre_issues_repos) == 
-      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking", "octocat/Spoon-Knife"])
-  end
-
   test "register repo" do
     repo_full_path = "octocat/Spoon-Knife"
     result = GithubStalking.Repository.register_repo(repo_full_path)
+
     assert :ok == result
+    pre_issues_repos = GithubStalking.Repository.target_repos()
+    assert Enum.sort(pre_issues_repos) == 
+      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking", "octocat/Spoon-Knife"])
   end
 
   test "register already exists repo" do
