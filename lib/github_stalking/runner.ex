@@ -6,6 +6,9 @@ defmodule GithubStalking.Runner do
 
       [show_repos: show_repos] ->
         IO.inspect(GithubStalking.Repository.target_repos)
+        
+      [show_issues: repo_full_path] ->
+        IO.inspect(GithubStalking.Issue.show_issues(repo_full_path))
 
       [collect: collect] -> 
         GithubStalking.IssueSpecifier.collect_repos_info

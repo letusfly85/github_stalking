@@ -22,8 +22,8 @@ defmodule GithubStalking.IssueSpecifier do
 
       #TODO add test case for 404 pattern
       case response do
-        {403, obj} -> raise("it seems that you exceed limitaion of GitHub API request.")
-        {404, obj} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
+        {403, _} -> raise("it seems that you exceed limitaion of GitHub API request.")
+        {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
           cur_issues = response
 
