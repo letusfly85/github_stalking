@@ -19,10 +19,7 @@ defmodule GithubStalking.Riak do
         nil -> acc
         _   ->
           result = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-          case result.numbers do
-            [] -> acc
-            _  -> [result|acc]
-          end
+          [result|acc]
       end
     end)
   end

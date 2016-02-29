@@ -17,6 +17,7 @@ defmodule GithubStalking.IssueSpecifier do
   search updated issues from pre searched
   """
   def updated_open_issues(owner, repo, pre_issues) do
+    IO.inspect("search issues from " <> owner <> "/" <> repo)
     try do
       response = Tentacat.Issues.filter(owner, repo, %{state: "open"}, @client)
 
@@ -25,24 +26,29 @@ defmodule GithubStalking.IssueSpecifier do
         {403, _} -> raise("it seems that you exceed limitaion of GitHub API request.")
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
-          cur_issues = response
 
-        Enum.filter(cur_issues, fn(cur_issue) ->
+        Enum.reduce([], response, fn(cur_issue, issues) ->
           number = cur_issue["number"]
-          pre_issues[number] != nil
-        end) |> Enum.reduce([], fn(cur_issue, issues) ->
-          number = cur_issue["number"]
-          pre_issue = pre_issues[number]
 
-          if cur_issue["updated_at"] > pre_issue.updated_at do
-            [cur_issue|issues]
+          case pre_issues[number] do
+            nil -> [cur_issue|issues]
+            _ ->
+              case cur_issue["updated_at"] > pre_issues.updated_at do
+                true -> [cur_issue|issues]
+                _ -> issues
+              end
           end
         end)
       end
 
-    catch
-      response ->
-      IO.inspect(response)
+    rescue
+      e in RuntimeError ->
+            IO.inspect(e.message)
+            []
+
+      e in UndefinedError ->
+            IO.inspect(e.message)
+            []
     end
 
   end

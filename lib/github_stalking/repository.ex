@@ -4,8 +4,11 @@ defmodule GithubStalking.Repository do
   repository list you want to stalk
   """
   def target_repos() do
-    {:ok, pre_issues_repos} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
-    pre_issues_repos
+    obj = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+    case obj do
+      {:ok, pre_issues_repos} -> pre_issues_repos
+      _ -> :error
+    end
   end
 
   @doc"""

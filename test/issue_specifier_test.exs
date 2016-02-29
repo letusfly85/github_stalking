@@ -7,8 +7,8 @@ defmodule GithubStalking.IssueSpecifierTest do
     
     issues = GithubStalking.IssueSpecifier.updated_open_issues("letusfly85", "github_stalking", pre_issues)
 
-    assert length(issues) == 1
-    assert hd(issues)["title"] == "OptionParser"
+    assert length(Enum.sort(issues)) == 7
+    assert hd(Enum.sort(issues))["title"] == "travis ci settings"
   end
 
   test "issue 6 should be updated after 2016-02-13T01:05:18Z" do
