@@ -4,16 +4,8 @@ defmodule GithubStalking.Riak do
   pid for riak connection
   """
   def get_pid do
-    {:ok, pid } = Riak.Connection.start('127.0.0.1', 8087)    
+    {:ok, pid} = Riak.Connection.start('127.0.0.1', 8087)    
     pid
-  end
-
-  @doc"""
-  repository list you want to stalk
-  """
-  def find_pre_issues_repos() do
-    {:ok, pre_issues_repos} = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
-    pre_issues_repos
   end
 
   @doc"""
@@ -22,13 +14,12 @@ defmodule GithubStalking.Riak do
   def issues_numbers(repo_full_path_list) do
     repo_full_path_list |> Enum.reduce([], fn(repo_full_path, acc) ->
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
-      if obj != nil do
-        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
-        if (hd issue_numbers.numbers) != nil do
-          [issue_numbers|acc]
-        end
-      else
-        acc
+
+      case obj do
+        nil -> acc
+        _   ->
+          result = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
+          [result|acc]
       end
     end)
   end
@@ -40,8 +31,14 @@ defmodule GithubStalking.Riak do
     issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
-      issue = Poison.decode!(obj.data, as: %GithubStalking.Issue{})
-      [issue|acc]
+
+      #TODO add test case when obj is nil
+      case obj do
+        nil -> acc
+        _ -> 
+         issue = Poison.decode!(obj.data, as: %GithubStalking.Issue{})
+         [issue|acc]
+      end
     end)
   end
 
@@ -73,14 +70,19 @@ defmodule GithubStalking.Riak do
     Riak.put(get_pid, obj)
   end
 
-  @doc"""
-  """
-  def register(issues, owner, repo) do
+  def register(repo_full_path, issues) do
     Enum.each(issues, fn(issue) ->
-      repo_full_path = owner <> "/" <> repo <> "/" <> to_string(issue["number"])
-      obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path, data: Poison.encode!(issue))
+      repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
+      obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(get_pid, obj)
     end)
+  end
+
+  @doc"""
+  """
+  def register(owner, repo, issues) do
+    repo_full_path = owner <> "/" <> repo
+    register(repo_full_path, issues)
   end
 
 end

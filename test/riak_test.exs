@@ -2,13 +2,21 @@ defmodule GithubStalking.RiakTest do
   use ExUnit.Case
   
   setup_all do
+    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+    case result do
+      {:ok, repositories} ->
+        Enum.each(repositories, fn(repository) ->
+          Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", repository)
+        end)
+    end
+
     issues = Enum.to_list 6..16
     |> Enum.reduce([], fn(elem, acc) ->
       issue = Factory.attributes_for(:issue, number: elem) |> Factory.parametrize
       [issue|acc]
     end)
     GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-    GithubStalking.Riak.register(issues, "letusfly85", "github_stalking")
+    GithubStalking.Riak.register("letusfly85", "github_stalking", issues)
 
     issues2 = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
     GithubStalking.Riak.register_numbers(issues2, "letusfly85",  "github_stalking")
@@ -17,10 +25,6 @@ defmodule GithubStalking.RiakTest do
     :ok
   end
 
-  test "get repos from issue_numbers" do
-    pre_issues_repos = GithubStalking.Riak.find_pre_issues_repos()
-    assert Enum.sort(pre_issues_repos) == Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking"])
-  end
 
   test "get issue numbers from issue_numbers" do
     issue_numbers = GithubStalking.Riak.issues_numbers(["letusfly85/github_stalking"])
@@ -67,4 +71,5 @@ defmodule GithubStalking.RiakTest do
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Issues{})
     assert issues_numbers.numbers == Enum.to_list 6..16
   end
+
 end
