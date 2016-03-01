@@ -4,8 +4,14 @@ defmodule GithubStalking.Riak do
   pid for riak connection
   """
   def get_pid do
-    {:ok, pid} = Riak.Connection.start('127.0.0.1', 8087)    
-    pid
+    conn = Riak.Connection.start('127.0.0.1', 8087)    
+
+    case conn do
+      {:ok, pid} ->
+        pid
+      {:error, {:tcp, :econnrefused}} ->
+        raise "cannot get connection of riak"
+    end
   end
 
   @doc"""

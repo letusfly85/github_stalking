@@ -7,7 +7,7 @@ defmodule GithubStalking.IssueSpecifierTest do
     
     issues = GithubStalking.IssueSpecifier.updated_open_issues("letusfly85", "github_stalking", pre_issues)
 
-    assert length(Enum.sort(issues)) == 7
+    assert length(Enum.sort(issues)) == 5
     assert hd(Enum.sort(issues))["title"] == "travis ci settings"
   end
 
