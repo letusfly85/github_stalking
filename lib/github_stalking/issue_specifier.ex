@@ -1,7 +1,5 @@
 defmodule GithubStalking.IssueSpecifier do
-  @client Tentacat.Client.new(
-    System.get_env("access_token") || Application.get_env(:github_stalking, :access_token)
-  )
+  @client Tentacat.Client.new(System.get_env("access_token"))
 
   @doc"""
   """
