@@ -44,6 +44,7 @@ defmodule GithubStalking.Mixfile do
      {:tentacat, "~> 0.2"},
      {:riak, "~> 1.0"},
      {:poison, "~> 2.0"},
-     {:factory_girl_elixir, "~> 0.1.1"}]
+     {:factory_girl_elixir, "~> 0.1.1"},
+     {:credo, "~> 0.3", only: [:dev, :test]}]
   end
 end
