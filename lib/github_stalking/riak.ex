@@ -54,8 +54,8 @@ defmodule GithubStalking.Riak do
   find pre issues map of a specified repository
   """
   def find_pre_issues_map(issue_numbers) do
-    find_pre_issues(issue_numbers)
-    |> Enum.reduce(%{}, fn(pre_issue, acc) ->
+    pre_issues = find_pre_issues(issue_numbers)
+    Enum.reduce(pre_issues, %{}, fn(pre_issue, acc) ->
       Map.put(acc, pre_issue.number, pre_issue)
     end)
   end

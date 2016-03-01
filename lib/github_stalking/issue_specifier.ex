@@ -75,7 +75,8 @@ defmodule GithubStalking.IssueSpecifier do
   search closed issues compared with pre searched
   """
   def closed_issues(owner, repo, pre_issues) do
-      closed_issue_list = Map.to_list(pre_issues) |> Enum.reduce([], fn(pre_issue, issues) ->
+      pre_issues_list = Map.to_list(pre_issues)
+      closed_issue_list =  Enum.reduce(pre_issues_list, [], fn(pre_issue, issues) ->
       response = cur_issue(owner, repo, pre_issue)
       case response do
         {:ok, response} ->
