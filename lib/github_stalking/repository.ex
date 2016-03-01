@@ -1,4 +1,6 @@
 defmodule GithubStalking.Repository do
+  @moduledoc"""
+  """
   require Logger
 
   @doc"""

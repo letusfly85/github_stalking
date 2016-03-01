@@ -1,4 +1,6 @@
 defmodule GithubStalking.Issue do
+  @moduledoc"""
+  """
   require Logger
 
   @derive [Poison.Encoder]

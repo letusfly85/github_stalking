@@ -1,4 +1,6 @@
 defmodule GithubStalking.IssueSpecifier do
+  @moduledoc"""
+  """
   require Logger
 
   @client Tentacat.Client.new(System.get_env("access_token"))

@@ -1,4 +1,6 @@
 defmodule GithubStalking.Riak do
+  @moduledoc"""
+  """
 
   @doc"""
   pid for riak connection

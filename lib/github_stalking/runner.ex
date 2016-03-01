@@ -1,4 +1,6 @@
 defmodule GithubStalking.Runner do
+  @moduledoc"""
+  """
   require Logger
 
   def run(options) do
