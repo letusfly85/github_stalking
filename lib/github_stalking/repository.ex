@@ -1,4 +1,5 @@
 defmodule GithubStalking.Repository do
+  require Logger
 
   @doc"""
   repository list you want to stalk
@@ -21,11 +22,11 @@ defmodule GithubStalking.Repository do
           issues_numbers = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: []}
           result = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
           Riak.put(GithubStalking.Riak.get_pid, result)
-          IO.inspect(repo_full_path <> " is registered.")
+          Logger.info(repo_full_path <> " is registered.")
           :ok
       
         _ ->
-          IO.inspect(repo_full_path <> " is already registered.")
+          Logger.info(repo_full_path <> " is already registered.")
           :error
       end
   end

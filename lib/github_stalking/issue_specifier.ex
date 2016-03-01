@@ -1,4 +1,6 @@
 defmodule GithubStalking.IssueSpecifier do
+  require Logger
+
   @client Tentacat.Client.new(System.get_env("access_token"))
 
   @doc"""
@@ -15,7 +17,7 @@ defmodule GithubStalking.IssueSpecifier do
   search updated issues from pre searched
   """
   def updated_open_issues(owner, repo, pre_issues) do
-    IO.inspect("search issues from " <> owner <> "/" <> repo)
+    Logger.info("search issues from " <> owner <> "/" <> repo)
     try do
       response = Tentacat.Issues.filter(owner, repo, %{state: "open"}, @client)
 
@@ -25,14 +27,14 @@ defmodule GithubStalking.IssueSpecifier do
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
 
-        Enum.reduce([], response, fn(cur_issue, issues) ->
-          number = cur_issue["number"]
+        Enum.reduce([], response, fn(current_issue, issues) ->
+          number = current_issue["number"]
 
           case pre_issues[number] do
-            nil -> [cur_issue|issues]
+            nil -> [current_issue|issues]
             _ ->
-              case cur_issue["updated_at"] > pre_issues.updated_at do
-                true -> [cur_issue|issues]
+              case current_issue["updated_at"] > pre_issues.updated_at do
+                true -> [current_issue|issues]
                 _ -> issues
               end
           end
@@ -41,11 +43,11 @@ defmodule GithubStalking.IssueSpecifier do
 
     rescue
       e in RuntimeError ->
-            IO.inspect(e.message)
+            Logger.info(e.message)
             []
 
       e in UndefinedError ->
-            IO.inspect(e.message)
+            Logger.info(e.message)
             []
     end
 
