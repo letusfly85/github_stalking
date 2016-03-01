@@ -30,7 +30,7 @@ use Mix.Config
 config :mix_test_watch,
   tasks: [
       "test",
-      "dogma",
+      "credo",
   ]
 
 # It is also possible to import configuration files, relative to this
