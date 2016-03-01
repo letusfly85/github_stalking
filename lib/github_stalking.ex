@@ -1,4 +1,7 @@
 defmodule GithubStalking do
+  @moduledoc"""
+  """
+
   def main(args) do
     {options, _, _} = OptionParser.parse(args,
       switches: [register: :string, collect: :string],

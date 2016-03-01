@@ -1,11 +1,19 @@
 defmodule GithubStalking.Riak do
+  @moduledoc"""
+  """
 
   @doc"""
   pid for riak connection
   """
   def get_pid do
-    {:ok, pid} = Riak.Connection.start('127.0.0.1', 8087)    
-    pid
+    conn = Riak.Connection.start('127.0.0.1', 8087)    
+
+    case conn do
+      {:ok, pid} ->
+        pid
+      {:error, {:tcp, :econnrefused}} ->
+        raise "cannot get connection of riak"
+    end
   end
 
   @doc"""
@@ -46,8 +54,8 @@ defmodule GithubStalking.Riak do
   find pre issues map of a specified repository
   """
   def find_pre_issues_map(issue_numbers) do
-    find_pre_issues(issue_numbers)
-    |> Enum.reduce(%{}, fn(pre_issue, acc) ->
+    pre_issues = find_pre_issues(issue_numbers)
+    Enum.reduce(pre_issues, %{}, fn(pre_issue, acc) ->
       Map.put(acc, pre_issue.number, pre_issue)
     end)
   end
@@ -65,8 +73,8 @@ defmodule GithubStalking.Riak do
     numbers = issues |> Enum.reduce(pre_numbers, fn(issue, acc) ->
       [issue["number"]|acc] 
     end) |> Enum.uniq() |> Enum.sort()
-    issues_numbers = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: numbers}
-    obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
+    issue_numbers_list = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: numbers}
+    obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))
     Riak.put(get_pid, obj)
   end
 

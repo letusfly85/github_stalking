@@ -1,7 +1,9 @@
 defmodule GithubStalking.IssueSpecifier do
-  @client Tentacat.Client.new(
-    System.get_env("access_token") || Application.get_env(:github_stalking, :access_token)
-  )
+  @moduledoc"""
+  """
+  require Logger
+
+  @client Tentacat.Client.new(System.get_env("access_token"))
 
   @doc"""
   """
@@ -17,7 +19,7 @@ defmodule GithubStalking.IssueSpecifier do
   search updated issues from pre searched
   """
   def updated_open_issues(owner, repo, pre_issues) do
-    IO.inspect("search issues from " <> owner <> "/" <> repo)
+    Logger.info("search issues from " <> owner <> "/" <> repo)
     try do
       response = Tentacat.Issues.filter(owner, repo, %{state: "open"}, @client)
 
@@ -27,28 +29,28 @@ defmodule GithubStalking.IssueSpecifier do
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
 
-        Enum.reduce([], response, fn(cur_issue, issues) ->
-          number = cur_issue["number"]
+        {:ok, Enum.reduce([], response, fn(current_issue, issues) ->
+          number = current_issue["number"]
 
           case pre_issues[number] do
-            nil -> [cur_issue|issues]
+            nil -> [current_issue|issues]
             _ ->
-              case cur_issue["updated_at"] > pre_issues.updated_at do
-                true -> [cur_issue|issues]
+              case current_issue["updated_at"] > pre_issues.updated_at do
+                true -> [current_issue|issues]
                 _ -> issues
               end
           end
-        end)
+        end)}
       end
 
     rescue
       e in RuntimeError ->
-            IO.inspect(e.message)
-            []
+            Logger.info(e.message)
+            {:error, []}
 
       e in UndefinedError ->
-            IO.inspect(e.message)
-            []
+            Logger.info(e.message)
+            {:error, []}
     end
 
   end
@@ -60,18 +62,35 @@ defmodule GithubStalking.IssueSpecifier do
     {number, _} = pre_issue
     pre_issue_number = Integer.to_string(number)
     
-    Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
+    response = Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
+    case response do
+      {403, _} ->
+        Logger.info("it seems that you exceed limitation of GitHub API.")
+        {:error, []}
+      _ -> {:ok, response}
+    end
   end
 
   @doc"""
   search closed issues compared with pre searched
   """
   def closed_issues(owner, repo, pre_issues) do
-    Enum.filter(Map.to_list(pre_issues), fn(pre_issue) ->
-      cur_issue(owner, repo, pre_issue)["state"] == "closed"
-    end) |> Enum.reduce([], fn(pre_issue, issues) ->
+    pre_issues_list = Map.to_list(pre_issues)
+
+    response_list =  Enum.reduce(pre_issues_list, [], fn(pre_issue, issues) ->
       [cur_issue(owner, repo, pre_issue)|issues]
     end)
+
+    closed_issue_list = Enum.reduce(response_list, [], fn(response, issues) ->
+      case response do
+        {:ok, response} ->
+          [response|issues]
+        {:error, _} ->
+          Logger.info("something wrong happen..")
+      end
+    end)
+    
+    {:ok, Enum.filter(closed_issue_list, fn(issue) -> issue["state"] == "closed" end)}
   end
 
   @doc"""
@@ -80,12 +99,17 @@ defmodule GithubStalking.IssueSpecifier do
     GithubStalking.Repository.target_repos()
     |> GithubStalking.Riak.issues_numbers
     |> Enum.each(fn(issue_numbers) ->
-         repo_full_path = issue_numbers.repo_full_path
-         pre_issues_map = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
+        repo_full_path = issue_numbers.repo_full_path
+        pre_issues_map = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
 
-         issues = updated_open_issues(repo_full_path, pre_issues_map)
-         GithubStalking.Riak.register(repo_full_path, issues)
-       end)
+        result = updated_open_issues(repo_full_path, pre_issues_map)
+        case result do
+          {:ok, issues} ->
+            GithubStalking.Riak.register(repo_full_path, issues)
+          {:error, _}   ->
+            GithubStalking.Riak.register(repo_full_path, [])
+        end
+      end)
   end
 
 end
