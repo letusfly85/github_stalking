@@ -7,7 +7,6 @@ defmodule GithubStalking.Github.Issue do
 
   @derive [Poison.Encoder]
   defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified]
-  defstruct is_notified: false
 
   def find_issues(repo_full_path) do
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
@@ -163,8 +162,8 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def collect_repos_info do
-    GithubStalking.Repository.target_repos()
-    |> GithubStalking.Riak.issues_numbers
+    GithubStalking.Github.Repository.target_repos()
+    |> GithubStalking.Github.IssueNumbers.find_issues_numbers
     |> Enum.each(fn(issue_numbers) ->
         repo_full_path = issue_numbers.repo_full_path
         pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
