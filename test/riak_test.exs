@@ -2,6 +2,13 @@ defmodule GithubStalking.RiakTest do
   use ExUnit.Case
   
   setup_all do
+    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_history")
+    case result do
+      {:ok, issues} ->
+        Enum.each(issues, fn(issue) ->
+          Riak.delete(GithubStalking.Riak.get_pid, "issue_history", issue)
+        end)
+    end
     result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
     case result do
       {:ok, repositories} ->
