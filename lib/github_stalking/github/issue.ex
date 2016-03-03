@@ -1,9 +1,67 @@
-defmodule GithubStalking.IssueSpecifier do
+defmodule GithubStalking.Github.Issue do
   @moduledoc"""
   """
   require Logger
 
   @client Tentacat.Client.new(System.get_env("access_token"))
+
+  @derive [Poison.Encoder]
+  defstruct [:number, :title, :updated_at, :owner, :repo]
+
+  def find_issues(repo_full_path) do
+    obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
+
+    result = nil 
+    case obj do
+      nil -> Logger.info(repo_full_path <> " doesn't have any issues")
+      _   ->
+        result = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
+    end
+
+    issue_numbers = Enum.filter(result.numbers, fn(numbers) -> numbers != [] end)
+    Enum.reduce(issue_numbers, [], fn(number, issues) ->
+      path = repo_full_path <> "/" <> to_string(number)
+
+      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
+      case obj do
+        nil ->
+          Logger.info("cannot get info from " <> path)
+          issues
+        _   -> 
+          issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
+          Logger.info(issue.title)
+          [issue|issues]
+      end
+    end)
+  end
+
+  @doc"""
+  find pre issues list of a specified repository
+  """
+  def find_pre_issues(issue_numbers) do
+    issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
+      path = issue_numbers.repo_full_path <> "/" <> to_string(number)
+      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
+
+      #TODO add test case when obj is nil
+      case obj do
+        nil -> acc
+        _ -> 
+         issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
+         [issue|acc]
+      end
+    end)
+  end
+
+  @doc"""
+  find pre issues map of a specified repository
+  """
+  def find_pre_issues_map(issue_numbers) do
+    pre_issues = find_pre_issues(issue_numbers)
+    Enum.reduce(pre_issues, %{}, fn(pre_issue, acc) ->
+      Map.put(acc, pre_issue.number, pre_issue)
+    end)
+  end
 
   @doc"""
   """
@@ -100,18 +158,35 @@ defmodule GithubStalking.IssueSpecifier do
     |> GithubStalking.Riak.issues_numbers
     |> Enum.each(fn(issue_numbers) ->
         repo_full_path = issue_numbers.repo_full_path
-        pre_issues_map = GithubStalking.Riak.find_pre_issues_map(issue_numbers)
+        pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
 
         result = updated_open_issues(repo_full_path, pre_issues_map)
         case result do
           {:ok, issues} ->
             Logger.info("collected " <> repo_full_path <> " info")
-            GithubStalking.Riak.register(repo_full_path, issues)
-            GithubStalking.Riak.register_numbers(repo_full_path, issues)
+            GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
+            GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
           {:error, _}   ->
-            GithubStalking.Riak.register(repo_full_path, [])
+            GithubStalking.Github.Issue.register_issues(repo_full_path, [])
         end
       end)
   end
+  
+  @doc"""
+  """
+  def register_issues(repo_full_path, issues) do
+    Enum.each(issues, fn(issue) ->
+      repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
+      obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
+      Riak.put(GithubStalking.Riak.get_pid, obj)
+      Logger.info("registered " <> repo_full_path_with_number)
+    end)
+  end
 
+  @doc"""
+  """
+  def register_issues(owner, repo, issues) do
+    repo_full_path = owner <> "/" <> repo
+    register_issues(repo_full_path, issues)
+  end
 end

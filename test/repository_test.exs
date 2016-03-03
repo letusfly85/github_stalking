@@ -11,8 +11,8 @@ defmodule GithubStalking.RepositoryTest do
     end
 
     issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
-    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-    GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
+    GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues)
+    GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly105", "bitbucket_stalking"  , issues)
 
     :ok
   end
@@ -24,11 +24,11 @@ defmodule GithubStalking.RepositoryTest do
     assert :ok == result
     pre_issues_repos = GithubStalking.Repository.target_repos()
     assert Enum.sort(pre_issues_repos) == 
-      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking", "octocat/Spoon-Knife"])
+      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking_test", "octocat/Spoon-Knife"])
   end
 
   test "register already exists repo" do
-    repo_full_path = "letusfly85/github_stalking"
+    repo_full_path = "letusfly85/github_stalking_test"
     result = GithubStalking.Repository.register_repo(repo_full_path)
     assert :error == result
   end

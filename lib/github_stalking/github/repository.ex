@@ -21,7 +21,7 @@ defmodule GithubStalking.Repository do
 
       case obj do
         nil ->
-          issues_numbers = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: []}
+          issues_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: []}
           result = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
           Riak.put(GithubStalking.Riak.get_pid, result)
           Logger.info(repo_full_path <> " is registered.")
