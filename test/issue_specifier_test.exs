@@ -19,7 +19,7 @@ defmodule GithubStalking.IssueSpecifierTest do
     case response do
       {:ok, issues} -> 
         assert length(Enum.sort(issues)) == 6
-        assert hd(Enum.sort(issues))["title"] == "travis ci settings"
+        assert hd(Enum.sort(issues))["title"] == "notify to slack"
       {:error, _}   -> raise("connection to GitHub is refused!!!")
     end
 

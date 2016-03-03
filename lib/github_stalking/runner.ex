@@ -12,10 +12,17 @@ defmodule GithubStalking.Runner do
         Logger.info(GithubStalking.Repository.target_repos)
         
       [show_issues: repo_full_path] ->
-        Logger.info(GithubStalking.Issue.show_issues(repo_full_path))
+        issues = GithubStalking.Issue.show_issues(repo_full_path)
+        Enum.each(issues, fn(issue) ->
+          Logger.info(issue.title)
+        end)
 
       [collect: collect] -> 
         GithubStalking.IssueSpecifier.collect_repos_info
+
+      [notify2slack: repo_full_path] -> 
+        Logger.info(repo_full_path)
+        GithubStalking.Slack.notify_update_issues(repo_full_path)
     end
   end
 end

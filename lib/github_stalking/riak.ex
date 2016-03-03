@@ -1,6 +1,7 @@
 defmodule GithubStalking.Riak do
   @moduledoc"""
   """
+  require Logger
 
   @doc"""
   pid for riak connection
@@ -62,6 +63,17 @@ defmodule GithubStalking.Riak do
 
   @doc"""
   """
+  def register_numbers(repo_full_path, issues) do
+    numbers = issues |> Enum.reduce([], fn(issue, acc) ->
+      [issue["number"]|acc] 
+    end) |> Enum.uniq() |> Enum.sort()
+    issue_numbers_list = %GithubStalking.Issues{repo_full_path: repo_full_path, numbers: numbers}
+    obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))
+    Riak.put(get_pid, obj)
+  end
+
+  @doc"""
+  """
   def register_numbers(issues, owner, repo) do
     repo_full_path = owner <> "/" <> repo
     pre_numbers = []
@@ -83,6 +95,7 @@ defmodule GithubStalking.Riak do
       repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(get_pid, obj)
+      Logger.info("registered " <> repo_full_path_with_number)
     end)
   end
 

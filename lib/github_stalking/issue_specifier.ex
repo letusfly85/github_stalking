@@ -105,7 +105,9 @@ defmodule GithubStalking.IssueSpecifier do
         result = updated_open_issues(repo_full_path, pre_issues_map)
         case result do
           {:ok, issues} ->
+            Logger.info("collected " <> repo_full_path <> " info")
             GithubStalking.Riak.register(repo_full_path, issues)
+            GithubStalking.Riak.register_numbers(repo_full_path, issues)
           {:error, _}   ->
             GithubStalking.Riak.register(repo_full_path, [])
         end
