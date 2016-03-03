@@ -18,7 +18,7 @@ defmodule GithubStalking.Slack do
     headers = []
     Logger.info(@slack_webhook_url)
     Enum.each(issues, fn(issue) ->
-      text = repo_full_path <> ", title: " <> issue.title <> ", updated_at: " <> issue.updated_at 
+      text = "https://github.com/" <> repo_full_path <> "/issues/" <> Integer.to_string(issue.number) <> "\ntitle: " <> issue.title <> ", updated_at: " <> issue.updated_at 
       json_data = %{channel:    "#github_extra", 
                     username:   "github_extra",
                     text:       text,
