@@ -6,7 +6,8 @@ defmodule GithubStalking.Github.Issue do
   @client Tentacat.Client.new(System.get_env("access_token"))
 
   @derive [Poison.Encoder]
-  defstruct [:number, :title, :updated_at, :owner, :repo]
+  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified]
+  defstruct is_notified: false
 
   def find_issues(repo_full_path) do
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
@@ -48,7 +49,11 @@ defmodule GithubStalking.Github.Issue do
         nil -> acc
         _ -> 
          issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
-         [issue|acc]
+         case issue.is_notified do
+           false -> [issue|acc]
+           true  -> acc
+           _ -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
+         end
       end
     end)
   end
@@ -177,6 +182,9 @@ defmodule GithubStalking.Github.Issue do
   def register_issues(repo_full_path, issues) do
     Enum.each(issues, fn(issue) ->
       repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
+      case issue["is_notified"] do
+        nil -> issue = Map.merge(issue, %{"is_notified" => false})
+      end
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(GithubStalking.Riak.get_pid, obj)
       Logger.info("registered " <> repo_full_path_with_number)

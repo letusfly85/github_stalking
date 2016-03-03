@@ -17,7 +17,7 @@ defmodule GithubStalking.IssueNumbersTest do
         end)
     end
 
-    issues = Enum.to_list 1..3
+    issues = Enum.to_list 1..4
     |> Enum.reduce([], fn(elem, acc) ->
       issue = Factory.attributes_for(:issue, number: elem) |> Factory.parametrize
       [issue|acc]
@@ -25,7 +25,7 @@ defmodule GithubStalking.IssueNumbersTest do
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues)
     GithubStalking.Github.Issue.register_issues("letusfly85", "github_stalking_test", issues)
 
-    issues2 = [%{"number" => 1}, %{"number" => 2}, %{"number" => 3}]
+    issues2 = [%{"number" => 1}, %{"number" => 3}, %{"number" => 4}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues2)
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly105", "bitbucket_stalking",   issues2)
 
@@ -34,7 +34,7 @@ defmodule GithubStalking.IssueNumbersTest do
 
   test "get issue numbers from issue_numbers" do
     issue_numbers = GithubStalking.Github.IssueNumbers.find_issues_numbers(["letusfly85/github_stalking_test"])
-    assert (hd issue_numbers).numbers == Enum.to_list 1..3
+    assert (hd issue_numbers).numbers == [1, 2, 3, 4]
     assert (hd issue_numbers).repo_full_path == "letusfly85/github_stalking_test"
   end
 
@@ -60,14 +60,14 @@ defmodule GithubStalking.IssueNumbersTest do
 
   test "get issue numbers of a repository from issue_numbers" do
     repo_full_path = "letusfly85/github_stalking_test"
-    issues_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: [1, 2, 3]}
+    issues_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: [1, 3, 4]}
 
     list = GithubStalking.Github.Issue.find_pre_issues(issues_numbers)
     |> Enum.reduce([], fn(issue, acc) ->
       [issue.number|acc]
     end)
    
-    assert [1, 2, 3] == list
+    assert [1, 3, 4] == list
   end
 
   test "register issue numbers" do
@@ -75,7 +75,7 @@ defmodule GithubStalking.IssueNumbersTest do
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85", "github_stalking_test", issues)
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking_test")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
-    assert issues_numbers.numbers == Enum.to_list 1..3
+    assert issues_numbers.numbers == [1, 2, 3, 4]
   end
 
 end
