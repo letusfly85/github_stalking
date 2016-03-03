@@ -18,23 +18,22 @@ defmodule GithubStalking.IssueTest do
     response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
-        assert length(Enum.sort(issues)) == 2
-        assert hd(Enum.sort(issues))["title"] == "test issue 1"
+        assert length(Enum.sort(issues)) == 3
+        assert hd(Enum.sort(issues))["title"] == "test issue 3"
       {:error, _}   -> raise("connection to GitHub is refused!!!")
     end
 
   end
 
-  test "issue 6 should be updated after 2016-02-13T01:05:18Z" do
-    pre_issue = %GithubStalking.Github.Issue{number: 6}
-    pre_issues = %{6 => pre_issue} 
+  test "issue 2 should be updated after 2016-02-13T01:05:18Z" do
+    pre_issue = %GithubStalking.Github.Issue{number: 2}
+    pre_issues = %{2 => pre_issue} 
 
     response = GithubStalking.Github.Issue.closed_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
         assert length(issues) >= 1
-        IO.inspect(issues)
-        assert hd(issues)["title"] == "[module]search still open and updated issue list from a github repository"
+        assert hd(issues)["title"] == "test issue 2"
       {:error, _}   -> raise("connection to GitHub is refused!!!")
     end
 
