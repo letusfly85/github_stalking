@@ -20,7 +20,7 @@ defmodule GithubStalking.Github.Issue do
     end
 
     issue_numbers = Enum.filter(result.numbers, fn(numbers) -> numbers != [] end)
-    Enum.reduce(issue_numbers, [], fn(number, issues) ->
+    issue_list = Enum.reduce(issue_numbers, [], fn(number, issues) ->
       path = repo_full_path <> "/" <> to_string(number)
 
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
@@ -33,6 +33,10 @@ defmodule GithubStalking.Github.Issue do
           Logger.info(issue.title)
           [issue|issues]
       end
+    end)
+    
+    Enum.filter(issue_list, fn(issue) ->
+      issue.is_notified == false
     end)
   end
 
