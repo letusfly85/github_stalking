@@ -67,7 +67,7 @@ defmodule GithubStalking.IssueNumbersTest do
       [issue.number|acc]
     end)
    
-    assert [1, 3, 4] == list
+    assert [4, 3, 1] == list
   end
 
   test "register issue numbers" do

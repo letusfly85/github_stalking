@@ -43,7 +43,7 @@ defmodule GithubStalking.Github.Issue do
   find pre issues list of a specified repository
   """
   def find_pre_issues(issue_numbers) do
-    issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
+    pre_issues = issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
 
@@ -52,11 +52,14 @@ defmodule GithubStalking.Github.Issue do
         nil -> acc
         _ -> 
          issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
-         case issue.is_notified do
-           false -> [issue|acc]
-           true  -> acc
-           _ -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
-         end
+         [issue|acc]
+      end
+    end)
+    Enum.reduce(pre_issues, [], fn(issue, acc) ->
+      case issue.is_notified do
+        false -> [issue|acc]
+        true  -> acc
+        _ -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
       end
     end)
   end
