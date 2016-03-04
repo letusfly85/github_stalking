@@ -98,28 +98,8 @@ defmodule GithubStalking.Github.Issue do
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
 
-        {:ok, Enum.reduce(response, [], fn(current_issue, issues) ->
-          number = current_issue["number"]
-          new_cur_issue = 
-            for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{}, do: {key, current_issue[Atom.to_string(key)]}
-          issue = struct(GithubStalking.Github.Issue, new_cur_issue)
-          #struct(GithubStalking.Github.Issue, Map.to_list(new_cur_issue))
-          issue = Map.put(issue, :avatar_url, current_issue["user"]["avatar_url"])
-
-          case pre_issues[number] do
-            nil ->
-              issue = Map.put(issue, :is_notified, false)
-              [issue|issues]
-            pre_issue   ->
-              case issue.updated_at > pre_issue.updated_at do
-                true ->
-                  issue = Map.put(issue, :is_notified, false)
-                  [issue|issues]
-                _    -> 
-                  pre_issue = Map.put(pre_issue, :avatar_url, current_issue["user"]["avatar_url"])
-                  [pre_issue|issues]
-              end
-          end
+        {:ok, Enum.reduce(response, [], fn(current_issue, acc) ->
+          generate_issues(current_issue, pre_issues, acc)
         end)}
       end
 
@@ -133,6 +113,30 @@ defmodule GithubStalking.Github.Issue do
             {:error, []}
     end
 
+  end
+
+  defp generate_issues(current_issue, pre_issues, acc) do
+    number = current_issue["number"]
+    new_cur_issue = 
+      for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{},
+                        do: {key, current_issue[Atom.to_string(key)]}
+    issue = struct(GithubStalking.Github.Issue, new_cur_issue)
+    issue = Map.put(issue, :avatar_url, current_issue["user"]["avatar_url"])
+
+    case pre_issues[number] do
+      nil ->
+        issue = Map.put(issue, :is_notified, false)
+        [issue|acc]
+      pre_issue   ->
+        case issue.updated_at > pre_issue.updated_at do
+          true ->
+            issue = Map.put(issue, :is_notified, false)
+            [issue|acc]
+          _    -> 
+            pre_issue = Map.put(pre_issue, :avatar_url, current_issue["user"]["avatar_url"])
+            [pre_issue|acc]
+        end
+    end
   end
 
   @doc"""
@@ -176,8 +180,8 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def collect_repos_info(repo_full_path) do
-    GithubStalking.Github.IssueNumbers.find_issues_numbers([repo_full_path])
-    |> Enum.each(fn(issue_numbers) ->
+    issue_numbers_list = GithubStalking.Github.IssueNumbers.find_issues_numbers([repo_full_path])
+    Enum.each(issue_numbers_list, fn(issue_numbers) ->
       pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
 
       result = updated_open_issues(repo_full_path, pre_issues_map)
