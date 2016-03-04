@@ -10,26 +10,28 @@ defmodule GithubStalking.RepositoryTest do
         end)
     end
 
-    issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
-    GithubStalking.Riak.register_numbers(issues, "letusfly85",  "github_stalking")
-    GithubStalking.Riak.register_numbers(issues, "letusfly105", "bitbucket_stalking")
+    issues = [%GithubStalking.Github.Issue{number: 11},
+              %GithubStalking.Github.Issue{number: 12},
+              %GithubStalking.Github.Issue{number: 13}]
+    GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues)
+    GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly105", "bitbucket_stalking"  , issues)
 
     :ok
   end
 
   test "register repo" do
     repo_full_path = "octocat/Spoon-Knife"
-    result = GithubStalking.Repository.register_repo(repo_full_path)
+    result = GithubStalking.Github.Repository.register_repo(repo_full_path)
 
     assert :ok == result
-    pre_issues_repos = GithubStalking.Repository.target_repos()
+    pre_issues_repos = GithubStalking.Github.Repository.target_repos()
     assert Enum.sort(pre_issues_repos) == 
-      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking", "octocat/Spoon-Knife"])
+      Enum.sort(["letusfly105/bitbucket_stalking", "letusfly85/github_stalking_test", "octocat/Spoon-Knife"])
   end
 
   test "register already exists repo" do
-    repo_full_path = "letusfly85/github_stalking"
-    result = GithubStalking.Repository.register_repo(repo_full_path)
+    repo_full_path = "letusfly85/github_stalking_test"
+    result = GithubStalking.Github.Repository.register_repo(repo_full_path)
     assert :error == result
   end
 
