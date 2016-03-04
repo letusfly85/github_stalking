@@ -6,7 +6,7 @@ defmodule GithubStalking.Github.Issue do
   @client Tentacat.Client.new(System.get_env("access_token"))
 
   @derive [Poison.Encoder]
-  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified]
+  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
 
   def find_issues(repo_full_path) do
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
@@ -104,17 +104,19 @@ defmodule GithubStalking.Github.Issue do
             for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{}, do: {key, current_issue[Atom.to_string(key)]}
           issue = struct(GithubStalking.Github.Issue, new_cur_issue)
           #struct(GithubStalking.Github.Issue, Map.to_list(new_cur_issue))
+          issue = Map.put(issue, :avatar_url, current_issue["user"]["avatar_url"])
 
           case pre_issues[number] do
             nil ->
-              Map.put(issue, :is_notified, false)
+              issue = Map.put(issue, :is_notified, false)
               [issue|issues]
             pre_issue   ->
               case issue.updated_at > pre_issue.updated_at do
                 true ->
-                  Map.put(issue, :is_notified, false)
+                  issue = Map.put(issue, :is_notified, false)
                   [issue|issues]
                 _    -> 
+                  pre_issue = Map.put(pre_issue, :avatar_url, current_issue["user"]["avatar_url"])
                   [pre_issue|issues]
               end
           end
