@@ -3,6 +3,8 @@ defmodule GithubStalking.Runner do
   """
   require Logger
 
+  @doc"""
+  """
   def run(options) do
     case options do
       [register: repo_full_path] -> 
@@ -10,25 +12,18 @@ defmodule GithubStalking.Runner do
 
       [show_repos: show_repos] ->
         repos = GithubStalking.Github.Repository.target_repos
-        Enum.each(repos, fn(repo) ->
-          Logger.info(repo)
-        end)
+        Enum.each(repos, fn(repo) -> Logger.info(repo) end)
         
       [show_issues: repo_full_path] ->
-        issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
-        Enum.each(issues, fn(issue) ->
-          Logger.info(":##### " <> issue.updated_at <> " " <> issue.title)
-        end)
+        GithubStalking.Github.Issue.show_issues(repo_full_path)
 
       [collect: collect] -> 
         case collect do
           "all"   -> GithubStalking.Github.Issue.collect_repos_info 
           collect -> GithubStalking.Github.Issue.collect_repos_info(collect)
         end
-        
 
       [notify2slack: repo_full_path] -> 
-        Logger.info(repo_full_path)
         GithubStalking.Slack.notify_update_issues(repo_full_path)
     end
   end
