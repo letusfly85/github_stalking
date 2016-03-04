@@ -10,7 +10,9 @@ defmodule GithubStalking.RepositoryTest do
         end)
     end
 
-    issues = [%{"number" => 11}, %{"number" => 12}, %{"number" => 13}]
+    issues = [%GithubStalking.Github.Issue{number: 11},
+              %GithubStalking.Github.Issue{number: 12},
+              %GithubStalking.Github.Issue{number: 13}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues)
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly105", "bitbucket_stalking"  , issues)
 

@@ -17,15 +17,16 @@ defmodule GithubStalking.IssueNumbersTest do
         end)
     end
 
-    issues = Enum.to_list 1..4
-    |> Enum.reduce([], fn(elem, acc) ->
-      issue = Factory.attributes_for(:issue, number: elem) |> Factory.parametrize
-      [issue|acc]
-    end)
+    issues  = [%GithubStalking.Github.Issue{number: 1, title: "aaa", updated_at: "1"},
+               %GithubStalking.Github.Issue{number: 2, title: "aaa", updated_at: "1"},
+               %GithubStalking.Github.Issue{number: 3, title: "aaa", updated_at: "1"},
+               %GithubStalking.Github.Issue{number: 4, title: "aaa", updated_at: "1"}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues)
     GithubStalking.Github.Issue.register_issues("letusfly85", "github_stalking_test", issues)
 
-    issues2 = [%{"number" => 1}, %{"number" => 3}, %{"number" => 4}]
+    issues2 = [%GithubStalking.Github.Issue{number: 1},
+               %GithubStalking.Github.Issue{number: 3},
+               %GithubStalking.Github.Issue{number: 4}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85",  "github_stalking_test", issues2)
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly105", "bitbucket_stalking",   issues2)
 
@@ -71,7 +72,9 @@ defmodule GithubStalking.IssueNumbersTest do
   end
 
   test "register issue numbers" do
-    issues = [%{"number" => 1}, %{"number" => 2}, %{"number" => 3}]
+    issues  = [%GithubStalking.Github.Issue{number: 1, title: "aaa", updated_at: "1"},
+               %GithubStalking.Github.Issue{number: 2, title: "aaa", updated_at: "1"},
+               %GithubStalking.Github.Issue{number: 3, title: "aaa", updated_at: "1"}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85", "github_stalking_test", issues)
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking_test")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})

@@ -19,7 +19,7 @@ defmodule GithubStalking.IssueTest do
     case response do
       {:ok, issues} -> 
         assert length(Enum.sort(issues)) == 3
-        assert hd(Enum.sort(issues))["title"] == "test issue 3"
+        assert hd(Enum.sort(issues)).title == "test issue 1"
       {:error, _}   -> raise("connection to GitHub is refused!!!")
     end
 
