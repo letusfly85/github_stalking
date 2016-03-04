@@ -101,8 +101,9 @@ defmodule GithubStalking.Github.Issue do
         {:ok, Enum.reduce(response, [], fn(current_issue, issues) ->
           number = current_issue["number"]
           new_cur_issue = 
-            for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{}, do: {Atom.to_string(key), current_issue[Atom.to_string(key)]}
+            for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{}, do: {key, current_issue[Atom.to_string(key)]}
           issue = struct(GithubStalking.Github.Issue, new_cur_issue)
+          #struct(GithubStalking.Github.Issue, Map.to_list(new_cur_issue))
 
           case pre_issues[number] do
             nil ->
