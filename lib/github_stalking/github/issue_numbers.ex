@@ -25,7 +25,7 @@ defmodule GithubStalking.Github.IssueNumbers do
   """
   def register_issue_numbers(repo_full_path, issues) do
     numbers = issues |> Enum.reduce([], fn(issue, acc) ->
-      [issue["number"]|acc] 
+      [issue.number|acc] 
     end) |> Enum.uniq() |> Enum.sort()
     issue_numbers_list = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))
@@ -43,7 +43,7 @@ defmodule GithubStalking.Github.IssueNumbers do
     end
 
     numbers = issues |> Enum.reduce(pre_numbers, fn(issue, acc) ->
-      [issue["number"]|acc] 
+      [issue.number|acc] 
     end) |> Enum.uniq() |> Enum.sort()
     issue_numbers_list = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))

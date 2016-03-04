@@ -17,7 +17,7 @@ defmodule GithubStalking.Runner do
       [show_issues: repo_full_path] ->
         issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
         Enum.each(issues, fn(issue) ->
-          Logger.info(issue.title)
+          Logger.info(":##### " <> issue.updated_at <> " " <> issue.title)
         end)
 
       [collect: collect] -> 

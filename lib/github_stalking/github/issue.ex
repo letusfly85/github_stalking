@@ -29,7 +29,7 @@ defmodule GithubStalking.Github.Issue do
           issues
         _   -> 
           issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
-          Logger.info(issue.title)
+          Logger.info(":##### " <> to_string(issue.number) <> " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)
           [issue|issues]
       end
     end)
@@ -58,7 +58,7 @@ defmodule GithubStalking.Github.Issue do
     Enum.reduce(pre_issues, [], fn(issue, acc) ->
       case issue.is_notified do
         false -> [issue|acc]
-        true  -> acc
+        true  -> [issue|acc]
         _ -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
       end
     end)
@@ -98,16 +98,23 @@ defmodule GithubStalking.Github.Issue do
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
         _          -> 
 
-        {:ok, Enum.reduce([], response, fn(current_issue, issues) ->
+        {:ok, Enum.reduce(response, [], fn(current_issue, issues) ->
           number = current_issue["number"]
-          issue = Poison.decode!(current_issue, as: %GithubStalking.Github.Issue{})
+          new_cur_issue = 
+            for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{}, do: {Atom.to_string(key), current_issue[Atom.to_string(key)]}
+          issue = struct(GithubStalking.Github.Issue, new_cur_issue)
 
           case pre_issues[number] do
-            nil -> [issue|issues]
-            _ ->
-              case issue.updated_at > pre_issues.updated_at do
-                true -> [issue|issues]
-                _ -> issues
+            nil ->
+              Map.put(issue, :is_notified, false)
+              [issue|issues]
+            pre_issue   ->
+              case issue.updated_at > pre_issue.updated_at do
+                true ->
+                  Map.put(issue, :is_notified, false)
+                  [issue|issues]
+                _    -> 
+                  [pre_issue|issues]
               end
           end
         end)}
@@ -207,14 +214,14 @@ defmodule GithubStalking.Github.Issue do
   """
   def register_issues(repo_full_path, issues) do
     Enum.each(issues, fn(issue) ->
-      repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
-      case issue["is_notified"] do
-        nil  -> issue = Map.put(issue, "is_notified", false)
-        true -> nil
+      repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue.number)
+      case issue.is_notified do
+        true -> issue = Map.put(issue, :is_notified, true)
+        _    -> issue = Map.put(issue, :is_notified, false)
       end
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(GithubStalking.Riak.get_pid, obj)
-      Logger.info("registered " <> repo_full_path_with_number)
+      Logger.info(":reg ## " <> to_string(issue.number) <> " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)
     end)
   end
 

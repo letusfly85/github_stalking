@@ -30,13 +30,8 @@ defmodule GithubStalking.Slack do
       Map.merge(issue, %GithubStalking.Github.Issue{is_notified: true})
       [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
     end) 
-
-    string_issue = Enum.reduce(result, [], fn(issue, acc) ->
-      new_issue = for {key, val} <- issue , into: %{}, do: {Atom.to_string(key), val}
-      [new_issue|acc]
-    end)
     
-    GithubStalking.Github.Issue.register_issues(repo_full_path, string_issue)
+    GithubStalking.Github.Issue.register_issues(repo_full_path, result)
   end
 
 end
