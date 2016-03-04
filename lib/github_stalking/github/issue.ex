@@ -123,7 +123,6 @@ defmodule GithubStalking.Github.Issue do
             Logger.info(e.message)
             {:error, []}
     end
-
   end
 
   defp generate_issues(current_issue, pre_issues, acc) do
