@@ -100,12 +100,13 @@ defmodule GithubStalking.Github.Issue do
 
         {:ok, Enum.reduce([], response, fn(current_issue, issues) ->
           number = current_issue["number"]
+          issue = Poison.decode!(current_issue, as: %GithubStalking.Github.Issue{})
 
           case pre_issues[number] do
-            nil -> [current_issue|issues]
+            nil -> [issue|issues]
             _ ->
-              case current_issue["updated_at"] > pre_issues.updated_at do
-                true -> [current_issue|issues]
+              case issue.updated_at > pre_issues.updated_at do
+                true -> [issue|issues]
                 _ -> issues
               end
           end
@@ -164,6 +165,25 @@ defmodule GithubStalking.Github.Issue do
 
   @doc"""
   """
+  def collect_repos_info(repo_full_path) do
+    GithubStalking.Github.IssueNumbers.find_issues_numbers([repo_full_path])
+    |> Enum.each(fn(issue_numbers) ->
+      pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
+
+      result = updated_open_issues(repo_full_path, pre_issues_map)
+      case result do
+        {:ok, issues} ->
+          Logger.info("collected " <> repo_full_path <> " info")
+          GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
+          GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
+        {:error, _}   ->
+          GithubStalking.Github.Issue.register_issues(repo_full_path, [])
+      end
+    end)
+  end
+
+  @doc"""
+  """
   def collect_repos_info do
     GithubStalking.Github.Repository.target_repos()
     |> GithubStalking.Github.IssueNumbers.find_issues_numbers
@@ -189,7 +209,8 @@ defmodule GithubStalking.Github.Issue do
     Enum.each(issues, fn(issue) ->
       repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue["number"])
       case issue["is_notified"] do
-        nil -> issue = Map.merge(issue, %{"is_notified" => false})
+        nil  -> issue = Map.put(issue, "is_notified", false)
+        true -> nil
       end
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(GithubStalking.Riak.get_pid, obj)

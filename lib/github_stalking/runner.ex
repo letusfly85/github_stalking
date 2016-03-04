@@ -21,7 +21,11 @@ defmodule GithubStalking.Runner do
         end)
 
       [collect: collect] -> 
-        GithubStalking.Github.Issue.collect_repos_info
+        case collect do
+          "all"   -> GithubStalking.Github.Issue.collect_repos_info 
+          collect -> GithubStalking.Github.Issue.collect_repos_info(collect)
+        end
+        
 
       [notify2slack: repo_full_path] -> 
         Logger.info(repo_full_path)

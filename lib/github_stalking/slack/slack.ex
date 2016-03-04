@@ -14,8 +14,9 @@ defmodule GithubStalking.Slack do
   @doc"""
   """
   def notify_update_issues(repo_full_path) do
-    issues = GithubStalking.Issue.find_issues(repo_full_path)
+    issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
     headers = []
+    Logger.info(System.get_env("slack_webhook_url"))
     Logger.info(@slack_webhook_url)
     result = Enum.reduce(issues, [], fn(issue, acc) ->
       text = "https://github.com/" <> repo_full_path <> "/issues/" <> Integer.to_string(issue.number) <> "\ntitle: " <> issue.title <> ", updated_at: " <> issue.updated_at 
@@ -27,10 +28,15 @@ defmodule GithubStalking.Slack do
       response = HTTPoison.post!(@slack_webhook_url, json_data, headers)
       Logger.info "response: #{inspect response}"
       Map.merge(issue, %GithubStalking.Github.Issue{is_notified: true})
-      [issue|acc]
+      [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
     end) 
+
+    string_issue = Enum.reduce(result, [], fn(issue, acc) ->
+      new_issue = for {key, val} <- issue , into: %{}, do: {Atom.to_string(key), val}
+      [new_issue|acc]
+    end)
     
-    GithubStalking.Github.Issue.register_issues(repo_full_path, result)
+    GithubStalking.Github.Issue.register_issues(repo_full_path, string_issue)
   end
 
 end
