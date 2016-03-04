@@ -7,7 +7,18 @@ defmodule GithubStalking.Github.Issue do
 
   @derive [Poison.Encoder]
   defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
+  
+  @doc"""
+  """
+  def show_issues(repo_full_path) do
+    issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
+    Enum.each(issues, fn(issue) ->
+      Logger.info("show:##### " <> issue.updated_at <> " " <> issue.title)
+    end)
+  end
 
+  @doc"""
+  """
   def find_issues(repo_full_path) do
     obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
 
