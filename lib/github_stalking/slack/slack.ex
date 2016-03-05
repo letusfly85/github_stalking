@@ -44,7 +44,7 @@ defmodule GithubStalking.Slack do
     Logger.info(@slack_webhook_url)
     result = Enum.reduce(issues, [], fn(issue, acc) ->
       json_data = generate_json_data(repo_full_path, issue) 
-      response = HTTPoison.post!(@slack_webhook_url, json_data, headers)
+      response = HTTPoison.post!(System.get_env("slack_webhook_url"), json_data, headers)
       Logger.info "response: #{inspect response}"
       [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
     end) 
