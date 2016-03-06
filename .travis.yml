@@ -8,4 +8,6 @@ otp_release:
 sudo: false
 env:
     - quantum_config_path=quantum.exs
-script: mix test credo
+script:
+    - mix test
+    - mix credo
