@@ -6,4 +6,4 @@ elixir:
 otp_release:
     - 18.0
 sudo: false
-script: mix test
+script: mix test credo
