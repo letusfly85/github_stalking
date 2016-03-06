@@ -26,7 +26,7 @@ defmodule GithubStalking.Mixfile do
   #defp applications(:dev), do: applications(:all) ++ [:remix]
   #defp applications(:test), do: applications(:all) ++ [:remix]
   defp applications(:test), do: applications(:all) ++ [:factory_girl_elixir]
-  defp applications(_all), do: [:logger, :tentacat, :riak]
+  defp applications(_all), do: [:logger, :tentacat, :riak, :quantum]
 
   # Dependencies can be Hex packages:
   #
@@ -44,6 +44,7 @@ defmodule GithubStalking.Mixfile do
      {:tentacat, "~> 0.2"},
      {:riak, "~> 1.0"},
      {:poison, "~> 2.0"},
+     {:quantum, ">= 1.6.1"},
      {:factory_girl_elixir, "~> 0.1.1"},
      {:credo, "~> 0.3", only: [:dev, :test]}]
   end
