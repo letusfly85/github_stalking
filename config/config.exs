@@ -28,6 +28,7 @@ use Mix.Config
 #  test: true
 
 import_config "#{System.get_env("quantum_config_path")}"
+import_config "#{System.get_env("collect_target_path")}"
 
 config :mix_test_watch,
   tasks: [

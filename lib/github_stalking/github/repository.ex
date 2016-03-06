@@ -29,7 +29,7 @@ defmodule GithubStalking.Github.Repository do
       
         _ ->
           Logger.info(repo_full_path <> " is already registered.")
-          :error
+          :ok
       end
   end
 

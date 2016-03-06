@@ -116,19 +116,23 @@ defmodule GithubStalking.Github.Issue do
 
     rescue
       e in RuntimeError ->
-            Logger.info(e.message)
-            {:error, []}
+        Logger.info(e)
+        {:error, []}
+
+      e in HTTPoison.Error ->
+        Logger.info(e)
+        {:error, []}
 
       e in UndefinedError ->
-            Logger.info(e.message)
-            {:error, []}
+        Logger.info(e)
+        {:error, []}
     end
   end
 
   defp generate_issues(current_issue, pre_issues, acc) do
     number = current_issue["number"]
     new_cur_issue = 
-      for {key, val} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{},
+      for {key, _} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{},
                         do: {key, current_issue[Atom.to_string(key)]}
     issue = struct(GithubStalking.Github.Issue, new_cur_issue)
     issue = Map.put(issue, :avatar_url, current_issue["user"]["avatar_url"])
