@@ -27,11 +27,14 @@ use Mix.Config
 #  silent: true
 #  test: true
 
+import_config "#{System.get_env("quantum_config_path")}"
+
 config :mix_test_watch,
   tasks: [
       "test",
       "credo",
   ]
+
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
