@@ -4,5 +4,7 @@ config :github_stalking,
   target_repos: [
     "drone/drone",
     "gitlabhq/gitlabhq",
-    "scala/slip"
+    "scala/slip",
+    "playframework/playframework",
+    "elixir-lang/elixir"
   ]
