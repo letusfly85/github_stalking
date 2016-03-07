@@ -20,3 +20,13 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
           [applications: [:github_stalking]]
         end
 
+## Usage
+
+```bash
+export quantum_config_path=quantum.exs
+export collect_target_path=target_repos.exs
+
+ulimit -n 65536
+
+elixir --detached mix run -e "GithubStalking.run"
+```

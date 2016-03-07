@@ -6,4 +6,8 @@ elixir:
 otp_release:
     - 18.0
 sudo: false
-script: mix test
+env:
+    - quantum_config_path=quantum.exs collect_target_path=target_repos.exs
+script:
+    - mix test
+    - mix credo

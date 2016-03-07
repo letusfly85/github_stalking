@@ -12,7 +12,11 @@ defmodule GithubStalking.Riak do
     case conn do
       {:ok, pid} ->
         pid
+
       {:error, {:tcp, :econnrefused}} ->
+        raise "cannot get connection of riak"
+
+      {:error, {:tcp, :emfile}} ->
         raise "cannot get connection of riak"
     end
   end
