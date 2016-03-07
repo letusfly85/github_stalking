@@ -12,7 +12,7 @@ defmodule GithubStalking do
   def run(x) do
     :timer.sleep(30000)
     Logger.info(x)
-    run(x+1)
+    run(x + 1)
   end
 
   @doc"""

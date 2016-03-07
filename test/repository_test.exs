@@ -32,7 +32,7 @@ defmodule GithubStalking.RepositoryTest do
   test "register already exists repo" do
     repo_full_path = "letusfly85/github_stalking_test"
     result = GithubStalking.Github.Repository.register_repo(repo_full_path)
-    assert :error == result
+    assert :ok == result
   end
 
 end
