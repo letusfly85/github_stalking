@@ -46,6 +46,8 @@ defmodule GithubStalking.Mixfile do
      {:poison, "~> 2.0"},
      {:quantum, ">= 1.6.1"},
      {:factory_girl_elixir, "~> 0.1.1"},
-     {:credo, "~> 0.3", only: [:dev, :test]}]
+     {:credo, "~> 0.3", only: [:dev, :test]},
+     {:logger_file_backend, "~> 0.0.6"}
+    ]
   end
 end
