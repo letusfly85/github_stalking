@@ -10,7 +10,7 @@ defmodule GithubStalking.Runner do
       [register: repo_full_path] -> 
         GithubStalking.Github.Repository.register_repo(repo_full_path)
 
-      [show_repos: show_repos] ->
+      [show_repos: _] ->
         repos = GithubStalking.Github.Repository.target_repos
         Enum.each(repos, fn(repo) -> Logger.info(repo) end)
         
