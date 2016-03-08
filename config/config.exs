@@ -32,11 +32,11 @@ config :logger,
              {LoggerFileBackend, :error}]
 
 config :logger, :info,
-  path: "/var/lib/tools/github_stalking.log",
+  path: "/var/log/tools/github_stalking.log",
   level: :info
 
 config :logger, :error,
-  path: "/var/lib/tools/github_stalking_err.log",
+  path: "/var/log/tools/github_stalking_err.log",
   level: :error
 
 import_config "#{System.get_env("quantum_config_path")}"
