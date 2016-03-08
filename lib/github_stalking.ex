@@ -11,7 +11,6 @@ defmodule GithubStalking do
   end
   def run(x) do
     :timer.sleep(30000)
-    Logger.info(x)
     run(x + 1)
   end
 
@@ -21,14 +20,16 @@ defmodule GithubStalking do
     target_repos = Application.get_env(:github_stalking, :target_repos)
     Enum.each(target_repos, fn(repo_full_path) ->
       try do
+      Logger.info(":start##" <> repo_full_path)
+
       GithubStalking.Github.Issue.collect_repos_info(repo_full_path)
       GithubStalking.Slack.notify_update_issues(repo_full_path)
 
-      Logger.info("done")
+      Logger.info(":finish##" <> repo_full_path)
       
       rescue
         e in RuntimeError ->
-          Logger.info(e.message)
+          Logger.error(e.message)
       end
     end)
 

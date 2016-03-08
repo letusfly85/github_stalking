@@ -6,7 +6,9 @@ defmodule GithubStalking.IssueTest do
     case result do
       {:ok, issues} ->
         Enum.each(issues, fn(issue) ->
-          Riak.delete(GithubStalking.Riak.get_pid, "issue_history", issue)
+          if Regex.match?(~r/awesome-elixir/, issue) == false do
+            Riak.delete(GithubStalking.Riak.get_pid, "issue_history", issue)
+          end
         end)
     end
   end

@@ -36,11 +36,10 @@ defmodule GithubStalking.Github.Issue do
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
       case obj do
         nil ->
-          Logger.info("cannot get info from " <> path)
+          Logger.info(":error##### cannot get info from " <> path)
           issues
         _   -> 
           issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
-          Logger.info(":##### " <> to_string(issue.number) <> " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)
           [issue|issues]
       end
     end)
@@ -163,7 +162,7 @@ defmodule GithubStalking.Github.Issue do
     response = Tentacat.Issues.find(owner, repo, pre_issue_number, @client) 
     case response do
       {403, _} ->
-        Logger.info("it seems that you exceed limitation of GitHub API.")
+        Logger.error("it seems that you exceed limitation of GitHub API.")
         {:error, []}
       _ -> {:ok, response}
     end
@@ -184,7 +183,7 @@ defmodule GithubStalking.Github.Issue do
         {:ok, response} ->
           [response|issues]
         {:error, _} ->
-          Logger.info("something wrong happen..")
+          Logger.error("something wrong happen..")
       end
     end)
     
@@ -201,34 +200,16 @@ defmodule GithubStalking.Github.Issue do
       result = updated_open_issues(repo_full_path, pre_issues_map)
       case result do
         {:ok, issues} ->
-          Logger.info("collected " <> repo_full_path <> " info")
+          Logger.info(":start  collecting issue ### " <> repo_full_path)
+          
           GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
           GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
+
+          Logger.info(":finish collecting issue ### " <> repo_full_path)
         {:error, _}   ->
           GithubStalking.Github.Issue.register_issues(repo_full_path, [])
       end
     end)
-  end
-
-  @doc"""
-  """
-  def collect_repos_info do
-    GithubStalking.Github.Repository.target_repos()
-    |> GithubStalking.Github.IssueNumbers.find_issues_numbers
-    |> Enum.each(fn(issue_numbers) ->
-        repo_full_path = issue_numbers.repo_full_path
-        pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
-
-        result = updated_open_issues(repo_full_path, pre_issues_map)
-        case result do
-          {:ok, issues} ->
-            Logger.info("collected " <> repo_full_path <> " info")
-            GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
-            GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
-          {:error, _}   ->
-            GithubStalking.Github.Issue.register_issues(repo_full_path, [])
-        end
-      end)
   end
   
   @doc"""
@@ -236,13 +217,17 @@ defmodule GithubStalking.Github.Issue do
   def register_issues(repo_full_path, issues) do
     Enum.each(issues, fn(issue) ->
       repo_full_path_with_number = repo_full_path <> "/" <> to_string(issue.number)
+      Logger.info(":start register issue ### " <> repo_full_path_with_number)
+
       case issue.is_notified do
         true -> issue = Map.put(issue, :is_notified, true)
         _    -> issue = Map.put(issue, :is_notified, false)
       end
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
       Riak.put(GithubStalking.Riak.get_pid, obj)
-      Logger.info(":reg ## " <> to_string(issue.number) <> " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)
+
+      Logger.info(":finish register issue ### " <> repo_full_path_with_number <> 
+                  " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)
     end)
   end
 
