@@ -155,7 +155,7 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   find issue detail
   """
-  def cur_issue(owner, repo, pre_issue) do
+  def find_cur_issue(owner, repo, pre_issue) do
     {number, _} = pre_issue
     pre_issue_number = Integer.to_string(number)
     
@@ -175,7 +175,7 @@ defmodule GithubStalking.Github.Issue do
     pre_issues_list = Map.to_list(pre_issues)
 
     response_list =  Enum.reduce(pre_issues_list, [], fn(pre_issue, issues) ->
-      [cur_issue(owner, repo, pre_issue)|issues]
+      [find_cur_issue(owner, repo, pre_issue)|issues]
     end)
 
     closed_issue_list = Enum.reduce(response_list, [], fn(response, issues) ->
