@@ -6,5 +6,6 @@ config :github_stalking,
     "gitlabhq/gitlabhq",
     "scala/slip",
     "playframework/playframework",
-    "elixir-lang/elixir"
+    "elixir-lang/elixir",
+    "openzipkin/zipkin"
   ]

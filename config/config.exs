@@ -27,6 +27,18 @@ use Mix.Config
 #  silent: true
 #  test: true
 
+config :logger,
+  backends: [{LoggerFileBackend, :info},
+             {LoggerFileBackend, :error}]
+
+config :logger, :info,
+  path: "/var/log/tools/github_stalking.log",
+  level: :info
+
+config :logger, :error,
+  path: "/var/log/tools/github_stalking_err.log",
+  level: :error
+
 import_config "#{System.get_env("quantum_config_path")}"
 import_config "#{System.get_env("collect_target_path")}"
 

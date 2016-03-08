@@ -3,14 +3,6 @@ defmodule GithubStalking.Slack do
   """
   require Logger
 
-  @slack_webhook_url System.get_env("slack_webhook_url")
-
-  @doc"""
-  """
-  def notify_update_issues do
-    #TODO
-  end
-
   @doc"""
   """
   def generate_json_data(repo_full_path, issue) do
@@ -40,12 +32,13 @@ defmodule GithubStalking.Slack do
   def notify_update_issues(repo_full_path) do
     issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
     headers = []
-    Logger.info(System.get_env("slack_webhook_url"))
-    Logger.info(@slack_webhook_url)
     result = Enum.reduce(issues, [], fn(issue, acc) ->
       json_data = generate_json_data(repo_full_path, issue) 
       response = HTTPoison.post!(System.get_env("slack_webhook_url"), json_data, headers)
+
+      #TODO show status code and repository name only
       Logger.info "response: #{inspect response}"
+
       [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
     end) 
     
