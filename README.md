@@ -28,5 +28,5 @@ export collect_target_path=target_repos.exs
 
 ulimit -n 65536
 
-elixir --detached mix run -e "GithubStalking.run"
+elixir --detached -S mix run -e "GithubStalking.run"
 ```
