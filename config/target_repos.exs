@@ -7,5 +7,6 @@ config :github_stalking,
     "scala/slip",
     "playframework/playframework",
     "elixir-lang/elixir",
-    "openzipkin/zipkin"
+    "openzipkin/zipkin",
+    "avelino/awesome-go"
   ]
