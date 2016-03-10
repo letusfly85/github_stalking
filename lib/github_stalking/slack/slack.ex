@@ -30,19 +30,25 @@ defmodule GithubStalking.Slack do
   @doc"""
   """
   def notify_update_issues(repo_full_path) do
-    issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
-    headers = []
-    result = Enum.reduce(issues, [], fn(issue, acc) ->
-      json_data = generate_json_data(repo_full_path, issue) 
-      response = HTTPoison.post!(System.get_env("slack_webhook_url"), json_data, headers)
+    prob_issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
+    case prob_issues do
+      {:ok, issues} ->
+        headers = []
+        result = Enum.reduce(issues, [], fn(issue, acc) ->
+          json_data = generate_json_data(repo_full_path, issue) 
+          response = HTTPoison.post!(System.get_env("slack_webhook_url"), json_data, headers)
 
-      #TODO show status code and repository name only
-      Logger.info "response: #{inspect response}"
+          #TODO show status code and repository name only
+          Logger.info "response: #{inspect response}"
 
-      [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
-    end) 
-    
-    GithubStalking.Github.Issue.register_issues(repo_full_path, result)
+          [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
+        end) 
+        
+        GithubStalking.Github.Issue.register_issues(repo_full_path, result)
+
+      {:error, _}   ->
+          Logger.error "there is no issues..."
+    end
   end
 
 end

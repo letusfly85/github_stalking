@@ -42,12 +42,7 @@ config :logger, :error,
 import_config "#{System.get_env("quantum_config_path")}"
 import_config "#{System.get_env("collect_target_path")}"
 
-config :mix_test_watch,
-  tasks: [
-      "test",
-      "credo",
-  ]
-
+import_config("#{Mix.env}.exs")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

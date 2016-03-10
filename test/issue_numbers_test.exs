@@ -36,9 +36,15 @@ defmodule GithubStalking.IssueNumbersTest do
   end
 
   test "get issue numbers from issue_numbers" do
-    issue_numbers = GithubStalking.Github.IssueNumbers.find_issues_numbers(["letusfly85/github_stalking_test"])
-    assert (hd issue_numbers).numbers == [1, 2, 3, 4]
-    assert (hd issue_numbers).repo_full_path == "letusfly85/github_stalking_test"
+    prob_issue_numbers = GithubStalking.Github.IssueNumbers.find_issues_numbers("letusfly85/github_stalking_test")
+    case prob_issue_numbers do
+      {:ok, issue_numbers} ->
+        assert issue_numbers.numbers == [1, 2, 3, 4]
+        assert issue_numbers.repo_full_path == "letusfly85/github_stalking_test"
+
+      {:eror, _} ->
+        nil
+    end
   end
 
   test "get pre issues from issue_numbers" do

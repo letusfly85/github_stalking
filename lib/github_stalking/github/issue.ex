@@ -11,10 +11,15 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def show_issues(repo_full_path) do
-    issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
-    Enum.each(issues, fn(issue) ->
-      Logger.info("show:##### " <> issue.updated_at <> " " <> issue.title)
-    end)
+    result = GithubStalking.Github.Issue.find_issues(repo_full_path)
+    case result do
+      {:ok, issues} -> 
+        Enum.each(issues, fn(issue) ->
+          Logger.info("show:##### " <> issue.updated_at <> " " <> issue.title)
+        end)
+      {:error, _} ->
+        Logger.error("there is no issues...")
+    end
   end
 
   @doc"""
@@ -24,19 +29,24 @@ defmodule GithubStalking.Github.Issue do
 
     result = nil 
     case obj do
-      nil -> Logger.info(repo_full_path <> " doesn't have any issues")
+      nil ->
+        Logger.error(repo_full_path <> " doesn't have any issues")
+        {:error, []}
       _   ->
-        result = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
-    end
+        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
 
-    issue_numbers = Enum.filter(result.numbers, fn(numbers) -> numbers != [] end)
-    issue_list = Enum.reduce(issue_numbers, [], fn(number, issues) ->
-      path = repo_full_path <> "/" <> to_string(number)
+        {:ok, find_issues_details(issue_numbers)}
+    end
+  end
+
+  def find_issues_details(issue_numbers) do
+    issue_list = Enum.reduce(issue_numbers.numbers, [], fn(number, issues) ->
+      path = issue_numbers.repo_full_path <> "/" <> to_string(number)
 
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
       case obj do
         nil ->
-          Logger.info(":error##### cannot get info from " <> path)
+          Logger.error(":error##### cannot get info from " <> path)
           issues
         _   -> 
           issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
@@ -193,23 +203,27 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def collect_repos_info(repo_full_path) do
-    issue_numbers_list = GithubStalking.Github.IssueNumbers.find_issues_numbers([repo_full_path])
-    Enum.each(issue_numbers_list, fn(issue_numbers) ->
-      pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
+    prob_issue_numbers = GithubStalking.Github.IssueNumbers.find_issues_numbers(repo_full_path)
+    case prob_issue_numbers do
+      {:ok, issue_numbers} ->
+        pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
 
-      result = updated_open_issues(repo_full_path, pre_issues_map)
-      case result do
-        {:ok, issues} ->
-          Logger.info(":start  collecting issue ### " <> repo_full_path)
-          
-          GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
-          GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
+        result = updated_open_issues(repo_full_path, pre_issues_map)
+        case result do
+          {:ok, issues} ->
+            Logger.info(":start  collecting issue ### " <> repo_full_path)
+            
+            GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
+            GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
 
-          Logger.info(":finish collecting issue ### " <> repo_full_path)
-        {:error, _}   ->
-          GithubStalking.Github.Issue.register_issues(repo_full_path, [])
-      end
-    end)
+            Logger.info(":finish collecting issue ### " <> repo_full_path)
+          {:error, _}   ->
+            GithubStalking.Github.Issue.register_issues(repo_full_path, [])
+        end
+
+      {:error, _} ->
+        Logger.error("it seems that there is no issue or no entry for " <> repo_full_path)
+    end
   end
   
   @doc"""

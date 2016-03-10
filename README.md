@@ -30,3 +30,9 @@ ulimit -n 65536
 
 elixir --detached -S mix run -e "GithubStalking.run"
 ```
+
+or
+
+```bash
+elixir --detached -S mix run --no-halt
+```

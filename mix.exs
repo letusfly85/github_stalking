@@ -40,7 +40,7 @@ defmodule GithubStalking.Mixfile do
   defp deps do
     [#{:remix, "~> 0.0.1", only: [:dev, :test]},
      #{:remix, git: "https://github.com/letusfly85/remix.git", only: [:dev, :test]},
-     {:mix_test_watch, "~> 0.2", only: :dev},
+     {:mix_test_watch, "~> 0.2", only: [:dev, :test]},
      {:tentacat, "~> 0.2"},
      {:riak, "~> 1.0"},
      {:poison, "~> 2.0"},

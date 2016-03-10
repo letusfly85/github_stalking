@@ -8,5 +8,6 @@ config :github_stalking,
     "playframework/playframework",
     "elixir-lang/elixir",
     "openzipkin/zipkin",
-    "avelino/awesome-go"
+    "avelino/awesome-go",
+    "redspread/spread"
   ]
