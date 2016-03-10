@@ -5,6 +5,8 @@ defmodule GithubStalking do
   require Logger
   use Application
 
+  @doc"""
+  """
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
