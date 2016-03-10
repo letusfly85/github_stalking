@@ -33,15 +33,14 @@ defmodule GithubStalking.Github.Issue do
         Logger.error(repo_full_path <> " doesn't have any issues")
         {:error, []}
       _   ->
-        result = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
-        issue_numbers = Enum.filter(result.numbers, fn(numbers) -> numbers != [] end)
+        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
 
-        {:ok, find_issues(:ins, issue_numbers)}
+        {:ok, find_issues_details(issue_numbers)}
     end
   end
 
-  def find_issues(:ins, issue_numbers) do
-    issue_list = Enum.reduce(issue_numbers, [], fn(number, issues) ->
+  def find_issues_details(issue_numbers) do
+    issue_list = Enum.reduce(issue_numbers.numbers, [], fn(number, issues) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
 
       obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
