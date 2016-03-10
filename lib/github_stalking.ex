@@ -3,15 +3,17 @@ defmodule GithubStalking do
   """
 
   require Logger
+  use Application
 
-  @doc"""
-  """
-  def run() do
-    run(0)
-  end
-  def run(x) do
-    :timer.sleep(30000)
-    run(x + 1)
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      worker(GithubStalking.Runner, [])
+    ]
+
+    opts = [strategy: :one_for_one, name: GithubStalking.Runner]
+    Supervisor.start_link(children, opts)
   end
 
   @doc"""
