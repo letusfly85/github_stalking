@@ -2,20 +2,20 @@ defmodule GithubStalking.IssueNumbersTest do
   use ExUnit.Case
 
   setup_all do
-    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_history")
+    result = Riak.Bucket.keys("issue_history")
     case result do
       {:ok, issues} ->
         Enum.each(issues, fn(issue) ->
           if Regex.match?(~r/awesome-elixir/, issue) == false do
-            Riak.delete(GithubStalking.Riak.get_pid, "issue_history", issue)
+            Riak.delete("issue_history", issue)
           end
         end)
     end
-    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_numbers")
+    result = Riak.Bucket.keys("issue_numbers")
     case result do
       {:ok, repositories} ->
         Enum.each(repositories, fn(repository) ->
-          Riak.delete(GithubStalking.Riak.get_pid, "issue_numbers", repository)
+          Riak.delete("issue_numbers", repository)
         end)
     end
 
@@ -61,7 +61,7 @@ defmodule GithubStalking.IssueNumbersTest do
   end
 
   test "get unique issue from issue_history" do
-    obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", "letusfly85/github_stalking_test/1")
+    obj = Riak.find("issue_history", "letusfly85/github_stalking_test/1")
     pre_issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
 
     assert pre_issue.number == 1
@@ -84,7 +84,7 @@ defmodule GithubStalking.IssueNumbersTest do
                %GithubStalking.Github.Issue{number: 2, title: "aaa", updated_at: "1"},
                %GithubStalking.Github.Issue{number: 3, title: "aaa", updated_at: "1"}]
     GithubStalking.Github.IssueNumbers.register_issue_numbers("letusfly85", "github_stalking_test", issues)
-    obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", "letusfly85/github_stalking_test")
+    obj = Riak.find("issue_numbers", "letusfly85/github_stalking_test")
     issues_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
     assert issues_numbers.numbers == [1, 2, 3, 4]
   end

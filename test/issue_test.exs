@@ -2,12 +2,12 @@ defmodule GithubStalking.IssueTest do
   use ExUnit.Case
 
   setup_all do
-    result = Riak.Bucket.keys(GithubStalking.Riak.get_pid, "issue_history")
+    result = Riak.Bucket.keys("issue_history")
     case result do
       {:ok, issues} ->
         Enum.each(issues, fn(issue) ->
           if Regex.match?(~r/awesome-elixir/, issue) == false do
-            Riak.delete(GithubStalking.Riak.get_pid, "issue_history", issue)
+            Riak.delete("issue_history", issue)
           end
         end)
     end

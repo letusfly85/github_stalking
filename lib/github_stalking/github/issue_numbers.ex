@@ -9,7 +9,7 @@ defmodule GithubStalking.Github.IssueNumbers do
   search issue list from issue_numbers
   """
   def find_issues_numbers(repo_full_path) do
-    obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
+    obj = Riak.find("issue_numbers", repo_full_path)
 
     case obj do
       nil ->
@@ -28,7 +28,7 @@ defmodule GithubStalking.Github.IssueNumbers do
     end) |> Enum.uniq() |> Enum.sort()
     issue_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers))
-    Riak.put(GithubStalking.Riak.get_pid, obj)
+    Riak.put(obj)
   end
 
   @doc"""
@@ -48,6 +48,6 @@ defmodule GithubStalking.Github.IssueNumbers do
     end) |> Enum.uniq() |> Enum.sort()
     issue_numbers_list = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))
-    Riak.put(GithubStalking.Riak.get_pid, obj)
+    Riak.put(obj)
   end
 end
