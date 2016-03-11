@@ -25,9 +25,8 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def find_issues(repo_full_path) do
-    obj = Riak.find(GithubStalking.Riak.get_pid, "issue_numbers", repo_full_path)
+    obj = Riak.find("issue_numbers", repo_full_path)
 
-    result = nil 
     case obj do
       nil ->
         Logger.error(repo_full_path <> " doesn't have any issues")
@@ -43,7 +42,7 @@ defmodule GithubStalking.Github.Issue do
     issue_list = Enum.reduce(issue_numbers.numbers, [], fn(number, issues) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
 
-      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
+      obj = Riak.find("issue_history", path) 
       case obj do
         nil ->
           Logger.error(":error##### cannot get info from " <> path)
@@ -65,7 +64,7 @@ defmodule GithubStalking.Github.Issue do
   def find_pre_issues(issue_numbers) do
     pre_issues = issue_numbers.numbers |> Enum.reduce([], fn(number, acc) ->
       path = issue_numbers.repo_full_path <> "/" <> to_string(number)
-      obj = Riak.find(GithubStalking.Riak.get_pid, "issue_history", path) 
+      obj = Riak.find("issue_history", path) 
 
       #TODO add test case when obj is nil
       case obj do
@@ -238,7 +237,7 @@ defmodule GithubStalking.Github.Issue do
         _    -> issue = Map.put(issue, :is_notified, false)
       end
       obj = Riak.Object.create(bucket: "issue_history", key: repo_full_path_with_number, data: Poison.encode!(issue))
-      Riak.put(GithubStalking.Riak.get_pid, obj)
+      Riak.put(obj)
 
       Logger.info(":finish register issue ### " <> repo_full_path_with_number <> 
                   " " <> issue.updated_at <> " " <> to_string(issue.is_notified) <> " " <> issue.title)

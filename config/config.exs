@@ -44,6 +44,17 @@ import_config "#{System.get_env("collect_target_path")}"
 
 import_config("#{Mix.env}.exs")
 
+config :pooler, pools:
+  [
+    [
+      name: :riaklocal,
+      group: :riak,
+      max_count: 15,
+      init_count: 2,
+      start_mfa: { Riak.Connection, :start_link, ['127.0.0.1', 8087] }
+    ]
+  ]
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.

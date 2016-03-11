@@ -47,7 +47,8 @@ defmodule GithubStalking.Mixfile do
      {:quantum, ">= 1.6.1"},
      {:factory_girl_elixir, "~> 0.1.1"},
      {:credo, "~> 0.3", only: [:dev, :test]},
-     {:logger_file_backend, "~> 0.0.6"}
+     #{:logger_file_backend, "~> 0.0.6"}
+     {:logger_file_backend, git: "git://github.com/letusfly85/logger_file_backend.git", branch: "development_credo"}
     ]
   end
 end

@@ -10,7 +10,7 @@
   "idna": {:hex, :idna, "1.0.3"},
   "jsx": {:hex, :jsx, "2.6.2"},
   "linguist": {:hex, :linguist, "0.1.5"},
-  "logger_file_backend": {:hex, :logger_file_backend, "0.0.6"},
+  "logger_file_backend": {:git, "git://github.com/letusfly85/logger_file_backend.git", "d165fe94be7ced84015239762698ffb902baad82", [branch: "development_credo"]},
   "meck": {:hex, :meck, "0.8.4"},
   "mimerl": {:hex, :mimerl, "1.0.2"},
   "mix_test_watch": {:hex, :mix_test_watch, "0.2.5"},
