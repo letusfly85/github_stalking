@@ -9,6 +9,6 @@ sudo: false
 env:
     - quantum_config_path=quantum.exs collect_target_path=target_repos.exs
 script:
-    - mix local.hex
+    - mix local.hex --force
     - mix test
     - mix credo
