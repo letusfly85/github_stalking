@@ -214,15 +214,15 @@ defmodule GithubStalking.Github.Issue do
       {:ok, issue_numbers} ->
         pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
 
-        result = updated_open_issues(repo_full_path, pre_issues_map)
-        case result do
+        prob_issues = updated_open_issues(repo_full_path, pre_issues_map)
+        case prob_issues do
           {:ok, issues} ->
-            Logger.info(":start  collecting issue ### " <> repo_full_path)
+            Logger.info(":start  collecting issues ### " <> repo_full_path)
             
             GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
             GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
 
-            Logger.info(":finish collecting issue ### " <> repo_full_path)
+            Logger.info(":finish collecting issues ### " <> repo_full_path)
 
           {:error, _}   ->
             GithubStalking.Github.Issue.register_issues(repo_full_path, [])
