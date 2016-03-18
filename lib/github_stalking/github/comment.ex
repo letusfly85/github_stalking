@@ -3,20 +3,29 @@ defmodule GithubStalking.Github.Comment do
   """
   require Logger
 
-  @client Tentacat.Client.new(System.get_env("access_token"))
+  @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
-  defstruct [:number, :id, :updated_at, :avatar_url, :login]
-
+  defstruct [:number, :id, :body, :updated_at, :avatar_url, :login]
 
   @doc"""
   """
-  def find_comments(repo_full_path) do
+  def find_comments(repo_full_path, number) do
     ary = String.split(repo_full_path, "/")
     owner = Enum.at(ary, 0)
     repo  = Enum.at(ary, 1)
     
-    Tentacat.Issues.Comments.list(owner, repo, @client)
+    t_comments = Tentacat.Issues.Comments.list(owner, repo, number, @client)
+    Enum.reduce(t_comments, [], fn(t_comment, acc) ->
+      n_comment = 
+        for {key, _} <- Map.from_struct(GithubStalking.Github.Comment.__struct__()), into: %{},
+                          do: {key, t_comment[Atom.to_string(key)]}
+      comment = struct(GithubStalking.Github.Comment, n_comment)
+      comment = Map.put(comment, :avatar_url, t_comment["user"]["avatar_url"])
+      comment = Map.put(comment, :login,      t_comment["user"]["login"])
+      comment = Map.put(comment, :number,     number)
+      [comment|acc]
+    end)
   end
 
   @doc"""
@@ -32,5 +41,11 @@ defmodule GithubStalking.Github.Comment do
         _    -> [new_comment|acc]
       end
     end)
+  end
+
+  @doc"""
+  """
+  def aaa do
+
   end
 end

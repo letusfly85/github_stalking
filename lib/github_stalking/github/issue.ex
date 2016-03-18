@@ -3,7 +3,7 @@ defmodule GithubStalking.Github.Issue do
   """
   require Logger
 
-  @client Tentacat.Client.new(System.get_env("access_token"))
+  @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
   defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
