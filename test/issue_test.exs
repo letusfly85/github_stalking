@@ -22,7 +22,7 @@ defmodule GithubStalking.IssueTest do
       {:ok, issues} -> 
         assert length(Enum.sort(issues)) == 3
         assert hd(Enum.sort(issues)).title == "test issue 1"
-      {:error, _}   -> raise("connection to GitHub is refused!!!")
+      {:error, _}   -> raise("connection to Github is refused!!!")
     end
 
   end
@@ -36,7 +36,7 @@ defmodule GithubStalking.IssueTest do
       {:ok, issues} -> 
         assert length(issues) >= 1
         assert hd(issues)["title"] == "test issue 2"
-      {:error, _}   -> raise("connection to GitHub is refused!!!")
+      {:error, _}   -> raise("connection to Github is refused!!!")
     end
 
   end
