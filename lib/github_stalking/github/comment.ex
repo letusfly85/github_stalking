@@ -9,6 +9,7 @@ defmodule GithubStalking.Github.Comment do
   defstruct [:number, :id, :body, :updated_at, :avatar_url, :login]
 
   @doc"""
+  find comments from GitHub API using a repository name and its issue number
   """
   def find_comments(repo_full_path, number) do
     ary = String.split(repo_full_path, "/")
@@ -31,11 +32,8 @@ defmodule GithubStalking.Github.Comment do
   @doc"""
   """
   def find_new_comments(new_comments, old_comments) do
-    target_list = Map.to_list(new_comments)
-    Enum.reduce(target_list, [], fn(new_comment_map, acc) ->
-      new_comment_id  = hd Map.keys(new_comment_map)
-      new_comment     = new_comment_map[new_comment_id]
-
+    Enum.reduce(new_comments, [], fn(new_comment, acc) ->
+      new_comment_id  = new_comment.id
       case new_comment == old_comments[new_comment_id] do
         true -> acc
         _    -> [new_comment|acc]
