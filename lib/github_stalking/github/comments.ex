@@ -5,7 +5,7 @@ defmodule GithubStalking.Github.Comments do
 
 
   @derive [Poison.Encoder]
-  defstruct [:number, :comment_counts, :participants]
+  defstruct [:number, :comment_counts, :participants, :comments] 
 
 
   @doc"""

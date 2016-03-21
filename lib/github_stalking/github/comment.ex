@@ -31,6 +31,20 @@ defmodule GithubStalking.Github.Comment do
 
   @doc"""
   """
+  def find_stored_comments(repo_full_path, number) do
+    repo_full_path_with_number = repo_full_path <> "/" <> to_string(number)
+    obj = Riak.find("comments", repo_full_path_with_number)
+    
+    case obj do
+      nil -> {:error, %{}}
+      _   ->
+          stored_comments = Poison.decode!(obj.data, as: %GithubStalking.Github.Comments{})
+          {:ok, stored_comments}
+    end
+  end
+
+  @doc"""
+  """
   def find_new_comments(new_comments, old_comments) do
     Enum.reduce(new_comments, [], fn(new_comment, acc) ->
       new_comment_id  = new_comment.id
