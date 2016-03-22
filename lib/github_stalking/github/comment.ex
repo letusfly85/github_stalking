@@ -11,7 +11,7 @@ defmodule GithubStalking.Github.Comment do
   @doc"""
   find comments from GitHub API using a repository name and its issue number
   """
-  def find_comments(repo_full_path, number) do
+  def find_github_comments(repo_full_path, number) do
     ary = String.split(repo_full_path, "/")
     owner = Enum.at(ary, 0)
     repo  = Enum.at(ary, 1)
@@ -55,9 +55,4 @@ defmodule GithubStalking.Github.Comment do
     end)
   end
 
-  @doc"""
-  """
-  def aaa do
-
-  end
 end

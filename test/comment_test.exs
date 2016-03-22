@@ -8,7 +8,7 @@ defmodule GithubStalking.CommentTest do
   end
 
   test "comment count is 4" do
-    comments = GithubStalking.Github.Comment.find_comments("letusfly85/github_stalking_test", 3)
+    comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 3)
 
     assert length(comments) == 4
   end
