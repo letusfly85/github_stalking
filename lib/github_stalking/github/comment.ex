@@ -55,4 +55,12 @@ defmodule GithubStalking.Github.Comment do
     end)
   end
 
+  @doc"""
+  register comments to riak database
+  """
+  def register_comments(repo_full_path_with_number, comments) do
+    obj = Riak.Object.create(bucket: "comments", key: repo_full_path_with_number, data: Poison.encode!(comments))
+    Riak.put(obj)
+  end
+
 end
