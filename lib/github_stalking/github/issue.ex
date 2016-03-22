@@ -3,7 +3,7 @@ defmodule GithubStalking.Github.Issue do
   """
   require Logger
 
-  @client Tentacat.Client.new(System.get_env("access_token"))
+  @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
   defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
@@ -31,9 +31,9 @@ defmodule GithubStalking.Github.Issue do
       nil ->
         Logger.error(repo_full_path <> " doesn't have any issues")
         {:error, []}
+
       _   ->
         issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
-
         {:ok, find_issues_details(issue_numbers)}
     end
   end
@@ -47,6 +47,7 @@ defmodule GithubStalking.Github.Issue do
         nil ->
           Logger.error(":error##### cannot get info from " <> path)
           issues
+
         _   -> 
           issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
           [issue|issues]
@@ -69,16 +70,17 @@ defmodule GithubStalking.Github.Issue do
       #TODO add test case when obj is nil
       case obj do
         nil -> acc
+
         _ -> 
          issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
          [issue|acc]
       end
     end)
+
     Enum.reduce(pre_issues, [], fn(issue, acc) ->
       case issue.is_notified do
-        false -> [issue|acc]
-        true  -> [issue|acc]
-        _ -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
+        nil -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
+        _   -> [issue|acc]
       end
     end)
   end
@@ -115,24 +117,25 @@ defmodule GithubStalking.Github.Issue do
       case response do
         {403, _} -> raise("it seems that you exceed limitaion of GitHub API request.")
         {404, _} -> raise(owner <> "/" <> repo <> " doesn't have open issues.")
-        _          -> 
 
-        {:ok, Enum.reduce(response, [], fn(current_issue, acc) ->
-          generate_issues(current_issue, pre_issues, acc)
-        end)}
+        _          -> 
+          issues = Enum.reduce(response, [], fn(current_issue, acc) ->
+                     generate_issues(current_issue, pre_issues, acc)
+                   end)
+          {:ok, issues}
       end
 
     rescue
       e in RuntimeError ->
-        Logger.info(e)
+        Logger.error(e.message)
         {:error, []}
 
       e in HTTPoison.Error ->
-        Logger.info(e)
+        Logger.error(e.message)
         {:error, []}
 
       e in UndefinedError ->
-        Logger.info(e)
+        Logger.error(e.message)
         {:error, []}
     end
   end
@@ -149,6 +152,7 @@ defmodule GithubStalking.Github.Issue do
       nil ->
         issue = Map.put(issue, :is_notified, false)
         [issue|acc]
+
       pre_issue   ->
         case issue.updated_at > pre_issue.updated_at do
           true ->
@@ -173,7 +177,9 @@ defmodule GithubStalking.Github.Issue do
       {403, _} ->
         Logger.error("it seems that you exceed limitation of GitHub API.")
         {:error, []}
-      _ -> {:ok, response}
+
+      _ ->
+        {:ok, response}
     end
   end
 
@@ -191,6 +197,7 @@ defmodule GithubStalking.Github.Issue do
       case response do
         {:ok, response} ->
           [response|issues]
+
         {:error, _} ->
           Logger.error("something wrong happen..")
       end
@@ -207,15 +214,16 @@ defmodule GithubStalking.Github.Issue do
       {:ok, issue_numbers} ->
         pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
 
-        result = updated_open_issues(repo_full_path, pre_issues_map)
-        case result do
+        prob_issues = updated_open_issues(repo_full_path, pre_issues_map)
+        case prob_issues do
           {:ok, issues} ->
-            Logger.info(":start  collecting issue ### " <> repo_full_path)
+            Logger.info(":start  collecting issues ### " <> repo_full_path)
             
             GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
             GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
 
-            Logger.info(":finish collecting issue ### " <> repo_full_path)
+            Logger.info(":finish collecting issues ### " <> repo_full_path)
+
           {:error, _}   ->
             GithubStalking.Github.Issue.register_issues(repo_full_path, [])
         end

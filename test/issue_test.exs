@@ -2,8 +2,8 @@ defmodule GithubStalking.IssueTest do
   use ExUnit.Case
 
   setup_all do
-    result = Riak.Bucket.keys("issue_history")
-    case result do
+    prob_issues = Riak.Bucket.keys("issue_history")
+    case prob_issues do
       {:ok, issues} ->
         Enum.each(issues, fn(issue) ->
           if Regex.match?(~r/awesome-elixir/, issue) == false do
@@ -22,7 +22,7 @@ defmodule GithubStalking.IssueTest do
       {:ok, issues} -> 
         assert length(Enum.sort(issues)) == 3
         assert hd(Enum.sort(issues)).title == "test issue 1"
-      {:error, _}   -> raise("connection to GitHub is refused!!!")
+      {:error, _}   -> raise("connection to Github is refused!!!")
     end
 
   end
@@ -36,7 +36,7 @@ defmodule GithubStalking.IssueTest do
       {:ok, issues} -> 
         assert length(issues) >= 1
         assert hd(issues)["title"] == "test issue 2"
-      {:error, _}   -> raise("connection to GitHub is refused!!!")
+      {:error, _}   -> raise("connection to Github is refused!!!")
     end
 
   end
