@@ -24,7 +24,7 @@ defmodule GithubStalking.Github.Comment do
       comment = struct(GithubStalking.Github.Comment, n_comment)
       comment = Map.put(comment, :avatar_url, t_comment["user"]["avatar_url"])
       comment = Map.put(comment, :login,      t_comment["user"]["login"])
-      comment = Map.put(comment, :login,      t_comment["updated_at"])
+      comment = Map.put(comment, :updated_at, t_comment["updated_at"])
       comment = Map.put(comment, :number,     number)
       [comment|acc]
     end)
