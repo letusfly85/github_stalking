@@ -11,13 +11,13 @@ defmodule GithubStalking.CommentTest do
     end
 
     comment  = %GithubStalking.Github.Comment{number: 3, id: 1, body: "test", updated_at: "2016-03-03T01:05:18Z"}
-    comments = %GithubStalking.Github.Comments{number: 3, comment_counts: 1, participants: 1, comments: [comment]}
+    comments = %GithubStalking.Github.Comments{number: 3, comment_count: 1, participants: 1, comments: [comment]}
     GithubStalking.Github.Comment.register_comments("letusfly85/github_stalking_test/3", comments)
 
     comment = %GithubStalking.Github.Comment{avatar_url: "https://avatars.githubusercontent.com/u/1466545?v=3",
       body: "test", id: 200124407, login: "letusfly85", number: 4,
         updated_at: "2016-03-23T01:56:08Z"}
-    comments = %GithubStalking.Github.Comments{number: 4, comment_counts: 1, participants: 1, comments: [comment]}
+    comments = %GithubStalking.Github.Comments{number: 4, comment_count: 1, participants: 1, comments: [comment]}
     GithubStalking.Github.Comment.register_comments("letusfly85/github_stalking_test/4", comments)
     :ok
   end
