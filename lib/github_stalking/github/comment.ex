@@ -24,6 +24,7 @@ defmodule GithubStalking.Github.Comment do
       comment = struct(GithubStalking.Github.Comment, n_comment)
       comment = Map.put(comment, :avatar_url, t_comment["user"]["avatar_url"])
       comment = Map.put(comment, :login,      t_comment["user"]["login"])
+      comment = Map.put(comment, :updated_at, t_comment["updated_at"])
       comment = Map.put(comment, :number,     number)
       [comment|acc]
     end)
@@ -46,12 +47,23 @@ defmodule GithubStalking.Github.Comment do
   @doc"""
   """
   def find_new_comments(new_comments, old_comments) do
+    mapped_old_comments = map_id2comments(old_comments)
     Enum.reduce(new_comments, [], fn(new_comment, acc) ->
       new_comment_id  = new_comment.id
-      case new_comment == old_comments[new_comment_id] do
+      case new_comment == mapped_old_comments[new_comment_id] do
         true -> acc
         _    -> [new_comment|acc]
       end
+    end)
+  end
+
+  defp map_id2comments(comments) do
+    Enum.reduce(comments.comments, %{}, fn(comment, acc) ->
+      n_comment = 
+        for {key, _} <- Map.from_struct(GithubStalking.Github.Comment.__struct__()), into: %{},
+                          do: {key, comment[Atom.to_string(key)]}
+      s_comment = Map.merge(%GithubStalking.Github.Comment{}, n_comment)
+      Map.put(acc, comment["id"] ,s_comment)
     end)
   end
 
