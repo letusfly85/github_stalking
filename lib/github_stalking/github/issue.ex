@@ -6,7 +6,7 @@ defmodule GithubStalking.Github.Issue do
   @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
-  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
+  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url, :comments]
   
   @doc"""
   """
