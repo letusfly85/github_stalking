@@ -47,9 +47,10 @@ defmodule GithubStalking.Github.Comment do
   @doc"""
   """
   def find_comments(issue) do
+    #TODO if there are no comments to a issue, skip this scope.
     repo_full_path = issue.owner <> "/" <> issue.repo
     {:ok, stored_comments}  = GithubStalking.Github.Comment.find_stored_comments(repo_full_path, issue.number)
-    current_comments = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
+    current_comments      = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
 
     new_comments = GithubStalking.Github.Comment.find_new_comments(current_comments, stored_comments)
 

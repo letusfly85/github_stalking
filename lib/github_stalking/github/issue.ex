@@ -120,6 +120,8 @@ defmodule GithubStalking.Github.Issue do
 
         _          -> 
           issues = Enum.reduce(response, [], fn(current_issue, acc) ->
+                     current_issue = Map.put(current_issue, "owner", owner)
+                     current_issue = Map.put(current_issue, "repo",  repo)
                      generate_issues(current_issue, pre_issues, acc)
                    end)
           {:ok, issues}
