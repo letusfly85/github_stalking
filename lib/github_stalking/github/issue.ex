@@ -156,6 +156,8 @@ defmodule GithubStalking.Github.Issue do
       pre_issue   ->
         case issue.updated_at > pre_issue.updated_at do
           true ->
+            comments = GithubStalking.Github.Comment.find_comments(issue)
+            issue = Map.put(issue, :comments, comments)
             issue = Map.put(issue, :is_notified, false)
             [issue|acc]
           _    -> 

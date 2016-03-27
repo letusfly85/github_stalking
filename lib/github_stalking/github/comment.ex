@@ -46,6 +46,18 @@ defmodule GithubStalking.Github.Comment do
 
   @doc"""
   """
+  def find_comments(issue) do
+    repo_full_path = issue.owner <> "/" <> issue.repo
+    {:ok, stored_comments}  = GithubStalking.Github.Comment.find_stored_comments(repo_full_path, issue.number)
+    current_comments = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
+
+    new_comments = GithubStalking.Github.Comment.find_new_comments(current_comments, stored_comments)
+
+    GithubStalking.Github.Comments.aggregate_comments(new_comments)
+  end
+
+  @doc"""
+  """
   def find_new_comments(new_comments, old_comments) do
     mapped_old_comments = map_id2comments(old_comments)
     Enum.reduce(new_comments, [], fn(new_comment, acc) ->
