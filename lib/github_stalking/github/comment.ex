@@ -67,18 +67,23 @@ defmodule GithubStalking.Github.Comment do
   def find_new_comments(prob_current_comments, prob_stored_comments) do
     case {prob_current_comments, prob_stored_comments} do
       {{:ok, current_comments}, {:ok, stored_comments}} ->
-          mapped_old_comments = map_id2comments(stored_comments)
-          Enum.reduce(current_comments, [], fn(new_comment, acc) ->
-            new_comment_id  = new_comment.id
-            case new_comment == mapped_old_comments[new_comment_id] do
-              true -> acc
-              _    -> [new_comment|acc]
-            end
-          end)
-
+        gather_comments(current_comments, stored_comments)
       _ ->
-      []
+        []
     end
+  end
+
+  @doc"""
+  """
+  def gather_comments(current_comments, stored_comments) do
+    mapped_old_comments = map_id2comments(stored_comments)
+    Enum.reduce(current_comments, [], fn(new_comment, acc) ->
+      new_comment_id  = new_comment.id
+      case new_comment == mapped_old_comments[new_comment_id] do
+        true -> acc
+        _    -> [new_comment|acc]
+      end
+    end)
   end
 
   defp map_id2comments(comments) do
