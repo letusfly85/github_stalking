@@ -59,7 +59,7 @@ defmodule GithubStalking.Github.Comment do
 
     new_comments = GithubStalking.Github.Comment.find_new_comments(prob_current_comments, prob_stored_comments)
 
-    GithubStalking.Github.Comments.aggregate_comments(new_comments)
+    GithubStalking.Github.Comments.aggregate_comments(issue.number, new_comments)
   end
 
   @doc"""
