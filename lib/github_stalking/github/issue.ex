@@ -6,7 +6,7 @@ defmodule GithubStalking.Github.Issue do
   @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
-  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url]
+  defstruct [:number, :title, :updated_at, :owner, :repo, :is_notified, :avatar_url, :comments]
   
   @doc"""
   """
@@ -120,6 +120,8 @@ defmodule GithubStalking.Github.Issue do
 
         _          -> 
           issues = Enum.reduce(response, [], fn(current_issue, acc) ->
+                     current_issue = Map.put(current_issue, "owner", owner)
+                     current_issue = Map.put(current_issue, "repo",  repo)
                      generate_issues(current_issue, pre_issues, acc)
                    end)
           {:ok, issues}
@@ -156,6 +158,8 @@ defmodule GithubStalking.Github.Issue do
       pre_issue   ->
         case issue.updated_at > pre_issue.updated_at do
           true ->
+            comments = GithubStalking.Github.Comment.find_comments(issue)
+            issue = Map.put(issue, :comments, comments)
             issue = Map.put(issue, :is_notified, false)
             [issue|acc]
           _    -> 

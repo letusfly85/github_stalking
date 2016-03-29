@@ -13,9 +13,11 @@ defmodule GithubStalking.IssueTest do
     end
   end
 
-  test "issue 1 should be updated after 2016-02-13T01:05:18Z" do
-    pre_issue = %GithubStalking.Github.Issue{number: 1, updated_at: "2016-03-03T01:05:18Z"}
-    pre_issues = %{1=> pre_issue} 
+  test "issue 3 should be updated after 2016-02-13T01:05:18Z" do
+    issue_number = 3
+    pre_issue = %GithubStalking.Github.Issue{owner: "letusfly85", repo: "github_stalking_test", 
+                                             number: issue_number, updated_at: "2016-03-03T01:05:18Z"}
+    pre_issues = %{issue_number => pre_issue} 
     
     response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
