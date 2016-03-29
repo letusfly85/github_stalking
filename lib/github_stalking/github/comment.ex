@@ -17,7 +17,7 @@ defmodule GithubStalking.Github.Comment do
     repo  = Enum.at(ary, 1)
     
     t_comments = Tentacat.Issues.Comments.list(owner, repo, number, @client)
-    Enum.reduce(t_comments, [], fn(t_comment, acc) ->
+    comments = Enum.reduce(t_comments, [], fn(t_comment, acc) ->
       n_comment = 
         for {key, _} <- Map.from_struct(GithubStalking.Github.Comment.__struct__()), into: %{},
                           do: {key, t_comment[Atom.to_string(key)]}
@@ -28,6 +28,11 @@ defmodule GithubStalking.Github.Comment do
       comment = Map.put(comment, :number,     number)
       [comment|acc]
     end)
+
+    case comments do
+      [] -> {:error, []}
+      _  -> {:ok,    comments}
+    end
   end
 
   @doc"""
@@ -49,25 +54,31 @@ defmodule GithubStalking.Github.Comment do
   def find_comments(issue) do
     #TODO if there are no comments to a issue, skip this scope.
     repo_full_path = issue.owner <> "/" <> issue.repo
-    {:ok, stored_comments}  = GithubStalking.Github.Comment.find_stored_comments(repo_full_path, issue.number)
-    current_comments      = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
+    prob_stored_comments  = GithubStalking.Github.Comment.find_stored_comments(repo_full_path, issue.number)
+    prob_current_comments = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
 
-    new_comments = GithubStalking.Github.Comment.find_new_comments(current_comments, stored_comments)
+    new_comments = GithubStalking.Github.Comment.find_new_comments(prob_current_comments, prob_stored_comments)
 
     GithubStalking.Github.Comments.aggregate_comments(new_comments)
   end
 
   @doc"""
   """
-  def find_new_comments(new_comments, old_comments) do
-    mapped_old_comments = map_id2comments(old_comments)
-    Enum.reduce(new_comments, [], fn(new_comment, acc) ->
-      new_comment_id  = new_comment.id
-      case new_comment == mapped_old_comments[new_comment_id] do
-        true -> acc
-        _    -> [new_comment|acc]
-      end
-    end)
+  def find_new_comments(prob_current_comments, prob_stored_comments) do
+    case {prob_current_comments, prob_stored_comments} do
+      {{:ok, current_comments}, {:ok, stored_comments}} ->
+          mapped_old_comments = map_id2comments(stored_comments)
+          Enum.reduce(current_comments, [], fn(new_comment, acc) ->
+            new_comment_id  = new_comment.id
+            case new_comment == mapped_old_comments[new_comment_id] do
+              true -> acc
+              _    -> [new_comment|acc]
+            end
+          end)
+
+      _ ->
+      []
+    end
   end
 
   defp map_id2comments(comments) do

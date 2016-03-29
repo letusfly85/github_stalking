@@ -23,7 +23,7 @@ defmodule GithubStalking.CommentTest do
   end
 
   test "comment count is 4" do
-    comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 3)
+    {:ok, comments} = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 3)
 
     assert length(comments) == 4
   end
@@ -38,12 +38,20 @@ defmodule GithubStalking.CommentTest do
   end
 
   test "find new comments" do
-    {:ok, stored_comments}  = GithubStalking.Github.Comment.find_stored_comments("letusfly85/github_stalking_test", 4)
-    current_comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 4)
+    prob_current_comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 4)
+    prob_stored_comments  = GithubStalking.Github.Comment.find_stored_comments("letusfly85/github_stalking_test", 4)
 
-    new_comments = GithubStalking.Github.Comment.find_new_comments(current_comments, stored_comments)
+    new_comments = GithubStalking.Github.Comment.find_new_comments(prob_current_comments, prob_stored_comments)
     
     assert length(new_comments) == 3
+  end
+
+  test "no comments issue" do
+    prob_current_comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 2)
+
+    case prob_current_comments do
+      {:error, comments} -> length(comments) == 0
+    end
   end
 
 end
