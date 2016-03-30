@@ -50,7 +50,8 @@ defmodule GithubStalking.CommentTest do
     prob_current_comments = GithubStalking.Github.Comment.find_github_comments("letusfly85/github_stalking_test", 2)
 
     case prob_current_comments do
-      {:error, comments} -> length(comments) == 0
+      {:error, comments} ->
+        assert length(comments) == 0
     end
   end
 
