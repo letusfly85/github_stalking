@@ -5,7 +5,7 @@ defmodule GithubStalking.Github.Comments do
 
 
   @derive [Poison.Encoder]
-  defstruct [:number, :comment_count, :participants, :comments] 
+  defstruct [:number, :comments, :comment_count, :participants, :participant_count] 
 
 
   @doc"""
@@ -16,8 +16,8 @@ defmodule GithubStalking.Github.Comments do
       participants   = dup_participants |> Enum.uniq |> Enum.sort
       
       %GithubStalking.Github.Comments{number: number, 
-                                      comment_count: comment_count, 
-                                      participants: participants, comments: comments}
+                                      comments: comments,         comment_count: comment_count, 
+                                      participants: participants, participant_count:  length(participants)}
 
   end
 end
