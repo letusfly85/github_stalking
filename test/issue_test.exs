@@ -55,7 +55,7 @@ defmodule GithubStalking.IssueTest do
         assert length(issues) >= 1
         prob_issue = Enum.filter(issues, fn(issue) -> issue.number == 5 end)
         assert hd(prob_issue).title == "test"
-        assert hd(prob_issue).participant_count == 0
+        assert hd(prob_issue).comments.participant_count == 0
 
       {:error, _}   -> raise("connection to Github is refused!!!")
     end
