@@ -13,14 +13,15 @@ defmodule GithubStalking.Slack do
     linked_text = "<https://github.com/" <> repo_full_path_with_number <>
                   "|" <> repo_full_path_with_number <> ">"
     comment_detail = ""
-    comment_color  = "yellow"
-    case issue.comments do
-      [] -> 
+    comment_color  = ""
+    Logger.info(inspect issue.comments)
+    case is_integer(issue.comments) do
+      true ->
         comment_detail = repo_full_path_with_number <> " doesn't have comments yet..."
         comment_color = "#d29ac6"
-      _  -> 
-        comment_detail = "comment count:       " + Integer.to_string(issue.comments.comment_count) <> "\n" <>
-                         "participant_count:   " + Integer.to_string(issue.comments.participant_count)
+      _  ->
+        comment_detail = "comment count:       " <> Integer.to_string(issue.comments["comment_count"]) <> "\n" <>
+                         "participant_count:   " <> Integer.to_string(issue.comments["participant_count"])
         comment_color = "#ddd6ca"
     end
  
@@ -33,8 +34,8 @@ defmodule GithubStalking.Slack do
                       #image_url: issue.avatar_url,
                       thumb_url: issue.avatar_url
                     },
-                    %{color:    comment_color,
-                      text: comment_detail
+                    %{color:  comment_color,
+                      text:   comment_detail
                     }
                   ],
                   icon_emoji: ":ghost:"} |> Poison.encode!
