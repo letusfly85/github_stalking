@@ -12,6 +12,8 @@ defmodule GithubStalking.Slack do
 
     linked_text = "<https://github.com/" <> repo_full_path_with_number <>
                   "|" <> repo_full_path_with_number <> ">"
+    comment_detail = "comment count:       " + Integer.to_string(issue.comments.comment_count) <> "\n" <>
+                     "participant_count:   " + Integer.to_string(issue.comments.participant_count)
  
     json_data = %{channel:    "#github_extra", 
                   username:   "github_extra",
@@ -21,6 +23,9 @@ defmodule GithubStalking.Slack do
                       text: text,
                       #image_url: issue.avatar_url,
                       thumb_url: issue.avatar_url
+                    },
+                    %{color:    "yellow",
+                      text: comment_detail
                     }
                   ],
                   icon_emoji: ":ghost:"} |> Poison.encode!
