@@ -75,6 +75,8 @@ defmodule GithubStalking.Github.Comment do
   @doc"""
   """
   def gather_comments(current_comments, stored_comments) do
+    Logger.info(inspect current_comments)
+    Logger.info(inspect stored_comments)
     mapped_old_comments = map_id2comments(stored_comments)
     Enum.reduce(current_comments, [], fn(new_comment, acc) ->
       new_comment_id  = new_comment.id
