@@ -42,7 +42,7 @@ defmodule GithubStalking.Github.Comment do
     obj = Riak.find("comments", repo_full_path_with_number)
     
     case obj do
-      nil -> {:error, %{}}
+      nil -> {:ok, %{}}
       _   ->
           stored_comments = Poison.decode!(obj.data, as: %GithubStalking.Github.Comments{})
           {:ok, stored_comments}
