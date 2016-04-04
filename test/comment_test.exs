@@ -43,7 +43,7 @@ defmodule GithubStalking.CommentTest do
 
     new_comments = GithubStalking.Github.Comment.find_new_comments(prob_current_comments, prob_stored_comments)
     
-    assert length(new_comments) == 3
+    assert length(new_comments) == 4
   end
 
   test "no comments issue" do
