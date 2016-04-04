@@ -20,8 +20,8 @@ defmodule GithubStalking.Slack do
         comment_detail = repo_full_path_with_number <> " doesn't have comments yet..."
         comment_color = "#d29ac6"
       _  ->
-        comment_detail = "comment count:       " <> Integer.to_string(issue.comments["comment_count"]) <> "\n" <>
-                         "participant_count:   " <> Integer.to_string(issue.comments["participant_count"])
+        comment_detail = "comment count:       " <> Integer.to_string(issue.comments.comment_count) <> "\n" <>
+                         "participant_count:   " <> Integer.to_string(issue.comments.participant_count)
         comment_color = "#ddd6ca"
     end
  
