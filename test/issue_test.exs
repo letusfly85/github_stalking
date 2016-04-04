@@ -65,4 +65,24 @@ defmodule GithubStalking.IssueTest do
   test "should collect one item from a repository" do
     assert 1 == 1
   end
+
+  test "issue 4 should be updated after 2016-02-13T01:05:18Z" do
+    issue_number = 4
+    pre_issue = %GithubStalking.Github.Issue{owner: "letusfly85", repo: "github_stalking_test", 
+                                             number: issue_number, updated_at: "2016-03-29T01:05:18Z"}
+    pre_issues = %{issue_number => pre_issue} 
+
+    response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
+    case response do
+      {:ok, issues} -> 
+        assert length(issues) >= 1
+        prob_issue = Enum.filter(issues, fn(issue) -> issue.number == 4 end)
+        assert hd(prob_issue).title == "test issue 4"
+        assert hd(prob_issue).comments.participant_count == 1
+        assert hd(prob_issue).comments.comment_count     == 3
+
+      {:error, _}   -> raise("connection to Github is refused!!!")
+    end
+  end
+
 end
