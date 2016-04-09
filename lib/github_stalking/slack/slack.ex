@@ -21,7 +21,7 @@ defmodule GithubStalking.Slack do
         comment_color = "#d29ac6"
       _  ->
         comment_detail = "comment count:       " <> Integer.to_string(issue.comments["comment_count"]) <> "\n" <>
-                         "participant_count:   " <> Integer.to_string(issue.comments["participant_count"])
+                         "participant count:   " <> Integer.to_string(issue.comments["participant_count"])
         comment_color = "#ddd6ca"
     end
  
@@ -31,7 +31,6 @@ defmodule GithubStalking.Slack do
                   attachments: [
                     %{color:    "#36a64f",
                       text: text,
-                      #image_url: issue.avatar_url,
                       thumb_url: issue.avatar_url
                     },
                     %{color:  comment_color,

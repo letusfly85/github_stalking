@@ -1,5 +1,6 @@
 defmodule GithubStalking.IssueTest do
   use ExUnit.Case
+  alias GithubStalking.Github.Issue
 
   setup_all do
     prob_issues = Riak.Bucket.keys("issue_history")
@@ -15,11 +16,11 @@ defmodule GithubStalking.IssueTest do
 
   test "issue 3 should be updated after 2016-02-13T01:05:18Z" do
     issue_number = 3
-    pre_issue = %GithubStalking.Github.Issue{owner: "letusfly85", repo: "github_stalking_test", 
+    pre_issue = %Issue{owner: "letusfly85", repo: "github_stalking_test", 
                                              number: issue_number, updated_at: "2016-03-03T01:05:18Z"}
     pre_issues = %{issue_number => pre_issue} 
     
-    response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
+    response = Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
         assert length(Enum.sort(issues)) == 4
@@ -30,10 +31,10 @@ defmodule GithubStalking.IssueTest do
   end
 
   test "issue 2 should be updated after 2016-02-13T01:05:18Z" do
-    pre_issue = %GithubStalking.Github.Issue{number: 2}
+    pre_issue = %Issue{number: 2}
     pre_issues = %{2 => pre_issue} 
 
-    response = GithubStalking.Github.Issue.closed_issues("letusfly85", "github_stalking_test", pre_issues)
+    response = Issue.closed_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
         assert length(issues) >= 1
@@ -45,11 +46,11 @@ defmodule GithubStalking.IssueTest do
 
   test "issue 5 should be updated after 2016-02-13T01:05:18Z" do
     issue_number = 5
-    pre_issue = %GithubStalking.Github.Issue{owner: "letusfly85", repo: "github_stalking_test", 
+    pre_issue = %Issue{owner: "letusfly85", repo: "github_stalking_test", 
                                              number: issue_number, updated_at: "2016-03-29T01:05:18Z"}
     pre_issues = %{issue_number => pre_issue} 
 
-    response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
+    response = Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
         assert length(issues) >= 1
@@ -68,11 +69,11 @@ defmodule GithubStalking.IssueTest do
 
   test "issue 4 should be updated after 2016-02-13T01:05:18Z" do
     issue_number = 4
-    pre_issue = %GithubStalking.Github.Issue{owner: "letusfly85", repo: "github_stalking_test", 
+    pre_issue = %Issue{owner: "letusfly85", repo: "github_stalking_test", 
                                              number: issue_number, updated_at: "2016-03-29T01:05:18Z"}
     pre_issues = %{issue_number => pre_issue} 
 
-    response = GithubStalking.Github.Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
+    response = Issue.updated_open_issues("letusfly85", "github_stalking_test", pre_issues)
     case response do
       {:ok, issues} -> 
         assert length(issues) >= 1
