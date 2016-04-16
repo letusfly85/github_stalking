@@ -3,6 +3,9 @@ defmodule GithubStalking.Github.Repository do
   """
   require Logger
 
+  @derive [Poison.Encoder]
+  defstruct [:id, :owner, :description, :html_url, :stargazers_count, :language]
+
   @doc"""
   repository list you want to stalk
   """
