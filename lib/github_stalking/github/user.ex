@@ -135,4 +135,13 @@ defmodule GithubStalking.Github.User do
         []
     end
   end
+
+  def summary_repos_by_language(repos) do
+    Enum.reduce(repos, %{}, fn(repo, acc) ->
+      Map.put(acc, repo.language, repo.full_name)
+    end)
+  end
+
+  #def sort_repos_by_star_counts(repos) do
+  #end
 end
