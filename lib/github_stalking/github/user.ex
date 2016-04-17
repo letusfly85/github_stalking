@@ -113,7 +113,7 @@ defmodule GithubStalking.Github.User do
     headers = []
     case HTTPoison.get(url, headers) do
       {:ok, response} ->
-        Enum.reduce(response.body |> Poison.decode!, [], fn(json, acc) ->
+        start_urls = Enum.reduce(response.body |> Poison.decode!, [], fn(json, acc) ->
           repo = %Repository{
             id:               json["id"],
             owner:            json["owner"]["login"],
@@ -128,6 +128,7 @@ defmodule GithubStalking.Github.User do
           }
           [repo|acc]
         end)
+        Enum.sort(start_urls, fn(repo1, repo2) -> repo1.updated_at < repo2.updated_at end)
 
       {:error, error} ->
         Logger.error(error)
