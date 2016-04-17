@@ -115,12 +115,16 @@ defmodule GithubStalking.Github.User do
       {:ok, response} ->
         Enum.reduce(response.body |> Poison.decode!, [], fn(json, acc) ->
           repo = %Repository{
-            id: json["id"],
+            id:               json["id"],
             owner:            json["owner"]["login"],
+            full_name:        json["full_name"],
             html_url:         json["html_url"],
             description:      json["description"],
             language:         json["language"],
-            stargazers_count: json["stargazers_count"]
+            stargazers_count: json["stargazers_count"],
+            created_at:       json["created_at"],
+            updated_at:       json["updated_at"],
+            pushed_at:        json["pushed_at"]
           }
           [repo|acc]
         end)

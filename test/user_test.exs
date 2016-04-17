@@ -14,11 +14,17 @@ defmodule GithubStalking.UserTest do
     assert user["name"] == "Shunsuke Wada"
   end
 
-  test "letusfly85 starred" do
-    login = "letusfly85"
+  test "octocat starred" do
+    login = "octocat"
     repos = User.starred_urls(login)
 
-    assert length(repos) == 30
+    assert length(repos) == 2
+    
+    repo = Enum.at(repos, 0)
+
+    assert repo.id        == 1296269
+    assert repo.owner     == "octocat"
+    assert repo.full_name == "octocat/Hello-World"
   end
 
 end
