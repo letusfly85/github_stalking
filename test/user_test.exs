@@ -27,4 +27,12 @@ defmodule GithubStalking.UserTest do
     assert repo.full_name == "octocat/Hello-World"
   end
 
+  test "donny-dont's starred python repo is his own one" do
+    login = "donny-dont"
+    repos = User.starred_urls(login)
+    summary_repos = User.summary_repos_by_language(repos)
+
+    assert summary_repos["Python"] == ["donny-dont/Django-Game-Analytics-Example"]
+  end
+
 end

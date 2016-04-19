@@ -138,7 +138,10 @@ defmodule GithubStalking.Github.User do
 
   def summary_repos_by_language(repos) do
     Enum.reduce(repos, %{}, fn(repo, acc) ->
-      Map.put(acc, repo.language, repo.full_name)
+      case acc[repo.language] do
+        nil -> Map.put(acc, repo.language, [repo.full_name])
+        ary -> Map.put(acc, repo.language, [repo.full_name|ary])
+      end
     end)
   end
 
