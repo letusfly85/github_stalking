@@ -145,6 +145,7 @@ defmodule GithubStalking.Github.User do
     end)
   end
 
-  #def sort_repos_by_star_counts(repos) do
-  #end
+  def sort_repos_by_star_counts(repos) do
+        Enum.sort(repos, fn(repo1, repo2) -> repo1.stargazers_count > repo2.stargazers_count end)
+  end
 end

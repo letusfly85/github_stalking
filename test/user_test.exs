@@ -35,4 +35,14 @@ defmodule GithubStalking.UserTest do
     assert summary_repos["Python"] == ["donny-dont/Django-Game-Analytics-Example"]
   end
 
+  test "donny-dont's most starred favarite repository is " do
+    login = "donny-dont"
+    repos = User.starred_urls(login)
+
+    most_starred_repo = hd User.sort_repos_by_star_counts(repos)
+
+    assert most_starred_repo.full_name        == "dart-lang/bleeding_edge-DEPRECATED-USE-SDK-INSTEAD"
+    assert most_starred_repo.stargazers_count == 222
+    assert most_starred_repo.language         == "Dart"
+  end
 end
