@@ -45,4 +45,11 @@ defmodule GithubStalking.UserTest do
     assert most_starred_repo.stargazers_count == 222
     assert most_starred_repo.language         == "Dart"
   end
+
+  test "octocat and letusfly85's starred_urls" do
+    participants = ["octocat", "letusfly85"]
+    starred_urls = User.collect_participants_starred_urls(participants)
+
+    assert length(starred_urls["octocat"]) == 2
+  end
 end

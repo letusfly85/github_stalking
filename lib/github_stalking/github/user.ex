@@ -16,6 +16,13 @@ defmodule GithubStalking.Github.User do
     Tentacat.Users.find(login, @client)
   end
 
+  @doc"""
+  """
+  def collect_participants_starred_urls(participants) do
+    Enum.reduce(participants, %{}, fn(login, acc) ->
+      Map.put(acc, login ,starred_urls(login))
+    end)
+  end
 
   @doc"""
   {
@@ -146,6 +153,6 @@ defmodule GithubStalking.Github.User do
   end
 
   def sort_repos_by_star_counts(repos) do
-        Enum.sort(repos, fn(repo1, repo2) -> repo1.stargazers_count > repo2.stargazers_count end)
+      Enum.sort(repos, fn(repo1, repo2) -> repo1.stargazers_count > repo2.stargazers_count end)
   end
 end
