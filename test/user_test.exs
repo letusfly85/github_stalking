@@ -42,7 +42,7 @@ defmodule GithubStalking.UserTest do
     most_starred_repo = hd User.sort_repos_by_star_counts(repos)
 
     assert most_starred_repo.full_name        == "dart-lang/bleeding_edge-DEPRECATED-USE-SDK-INSTEAD"
-    assert most_starred_repo.stargazers_count == 222
+    assert most_starred_repo.stargazers_count == 220
     assert most_starred_repo.language         == "Dart"
   end
 
