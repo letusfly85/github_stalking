@@ -27,4 +27,29 @@ defmodule GithubStalking.UserTest do
     assert repo.full_name == "octocat/Hello-World"
   end
 
+  test "donny-dont's starred python repo is his own one" do
+    login = "donny-dont"
+    repos = User.starred_urls(login)
+    summary_repos = User.summary_repos_by_language(repos)
+
+    assert summary_repos["Python"] == ["donny-dont/Django-Game-Analytics-Example"]
+  end
+
+  test "donny-dont's most starred favarite repository is " do
+    login = "donny-dont"
+    repos = User.starred_urls(login)
+
+    most_starred_repo = hd User.sort_repos_by_star_counts(repos)
+
+    assert most_starred_repo.full_name        == "dart-lang/bleeding_edge-DEPRECATED-USE-SDK-INSTEAD"
+    assert most_starred_repo.stargazers_count == 220
+    assert most_starred_repo.language         == "Dart"
+  end
+
+  test "octocat and letusfly85's starred_urls" do
+    participants = ["octocat", "letusfly85"]
+    starred_urls = User.collect_participants_starred_urls(participants)
+
+    assert length(starred_urls["octocat"]) == 2
+  end
 end
