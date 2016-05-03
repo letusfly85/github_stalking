@@ -3,6 +3,10 @@ defmodule GithubStalking.Github.Issue do
   """
   require Logger
 
+  alias GithubStalking.Github.Issue
+  alias GithubStalking.Github.IssueNumbers
+  alias GithubStalking.Github.Comment
+
   @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
@@ -11,7 +15,7 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def show_issues(repo_full_path) do
-    result = GithubStalking.Github.Issue.find_issues(repo_full_path)
+    result = Issue.find_issues(repo_full_path)
     case result do
       {:ok, issues} -> 
         Enum.each(issues, fn(issue) ->
@@ -33,7 +37,7 @@ defmodule GithubStalking.Github.Issue do
         {:error, []}
 
       _   ->
-        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
+        issue_numbers = Poison.decode!(obj.data, as: %IssueNumbers{})
         {:ok, find_issues_details(issue_numbers)}
     end
   end
@@ -49,7 +53,7 @@ defmodule GithubStalking.Github.Issue do
           issues
 
         _   -> 
-          issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
+          issue = Poison.decode!(obj.data, as: %Issue{})
           [issue|issues]
       end
     end)
@@ -72,14 +76,14 @@ defmodule GithubStalking.Github.Issue do
         nil -> acc
 
         _ -> 
-         issue = Poison.decode!(obj.data, as: %GithubStalking.Github.Issue{})
+         issue = Poison.decode!(obj.data, as: %Issue{})
          [issue|acc]
       end
     end)
 
     Enum.reduce(pre_issues, [], fn(issue, acc) ->
       case issue.is_notified do
-        nil -> [Map.merge(issue, %GithubStalking.Github.Issue{is_notified: false})|acc]
+        nil -> [Map.merge(issue, %Issue{is_notified: false})|acc]
         _   -> [issue|acc]
       end
     end)
@@ -145,9 +149,9 @@ defmodule GithubStalking.Github.Issue do
   defp generate_issues(current_issue, pre_issues, acc) do
     number = current_issue["number"]
     new_cur_issue = 
-      for {key, _} <- Map.from_struct(GithubStalking.Github.Issue.__struct__()), into: %{},
+      for {key, _} <- Map.from_struct(Issue.__struct__()), into: %{},
                         do: {key, current_issue[Atom.to_string(key)]}
-    issue = struct(GithubStalking.Github.Issue, new_cur_issue)
+    issue = struct(Issue, new_cur_issue)
     issue = Map.put(issue, :avatar_url, current_issue["user"]["avatar_url"])
 
     case pre_issues[number] do
@@ -158,7 +162,7 @@ defmodule GithubStalking.Github.Issue do
       pre_issue   ->
         case issue.updated_at > pre_issue.updated_at do
           true ->
-            comments = GithubStalking.Github.Comment.find_comments(issue)
+            comments = Comment.find_comments(issue)
             issue = Map.put(issue, :comments, comments)
             issue = Map.put(issue, :is_notified, false)
             [issue|acc]
@@ -213,23 +217,23 @@ defmodule GithubStalking.Github.Issue do
   @doc"""
   """
   def collect_repos_info(repo_full_path) do
-    prob_issue_numbers = GithubStalking.Github.IssueNumbers.find_issues_numbers(repo_full_path)
+    prob_issue_numbers = IssueNumbers.find_issues_numbers(repo_full_path)
     case prob_issue_numbers do
       {:ok, issue_numbers} ->
-        pre_issues_map = GithubStalking.Github.Issue.find_pre_issues_map(issue_numbers)
+        pre_issues_map = Issue.find_pre_issues_map(issue_numbers)
 
         prob_issues = updated_open_issues(repo_full_path, pre_issues_map)
         case prob_issues do
           {:ok, issues} ->
             Logger.info(":start  collecting issues ### " <> repo_full_path)
             
-            GithubStalking.Github.Issue.register_issues(repo_full_path, issues)
-            GithubStalking.Github.IssueNumbers.register_issue_numbers(repo_full_path, issues)
+            Issue.register_issues(repo_full_path, issues)
+            IssueNumbers.register_issue_numbers(repo_full_path, issues)
 
             Logger.info(":finish collecting issues ### " <> repo_full_path)
 
           {:error, _}   ->
-            GithubStalking.Github.Issue.register_issues(repo_full_path, [])
+            Issue.register_issues(repo_full_path, [])
         end
 
       {:error, _} ->
