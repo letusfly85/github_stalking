@@ -2,6 +2,8 @@ defmodule GithubStalking.Github.IssueNumbers do
   @moduledoc"""
   """
 
+  alias GithubStalking.Github.IssueNumbers
+
   @derive [Poison.Encoder]
   defstruct [:repo_full_path, :numbers]
 
@@ -15,7 +17,7 @@ defmodule GithubStalking.Github.IssueNumbers do
       nil ->
         {:error, []}
       _   ->
-        issue_numbers = Poison.decode!(obj.data, as: %GithubStalking.Github.IssueNumbers{})
+        issue_numbers = Poison.decode!(obj.data, as: %IssueNumbers{})
         {:ok, issue_numbers}
     end
   end
@@ -26,7 +28,7 @@ defmodule GithubStalking.Github.IssueNumbers do
     numbers = issues |> Enum.reduce([], fn(issue, acc) ->
       [issue.number|acc] 
     end) |> Enum.uniq() |> Enum.sort()
-    issue_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
+    issue_numbers = %IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers))
     Riak.put(obj)
   end
@@ -46,7 +48,7 @@ defmodule GithubStalking.Github.IssueNumbers do
     numbers = issues |> Enum.reduce(pre_numbers, fn(issue, acc) ->
       [issue.number|acc] 
     end) |> Enum.uniq() |> Enum.sort()
-    issue_numbers_list = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
+    issue_numbers_list = %IssueNumbers{repo_full_path: repo_full_path, numbers: numbers}
     obj = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issue_numbers_list))
     Riak.put(obj)
   end

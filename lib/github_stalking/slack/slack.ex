@@ -3,26 +3,31 @@ defmodule GithubStalking.Slack do
   """
   require Logger
 
+  alias GithubStalking.Github.Issue
+
   @doc"""
   """
   def generate_json_data(repo_full_path, issue) do
-    repo_full_path_with_number = repo_full_path   <> "/issues/" <> Integer.to_string(issue.number) 
-    text = issue.title <>
-           "\nupdated_at: " <> issue.updated_at
+    repo_full_path_with_number = 
+      repo_full_path   <> "/issues/" <> Integer.to_string(issue.number) 
+    text = issue.title <> "\nupdated_at: " <> issue.updated_at
 
     linked_text = "<https://github.com/" <> repo_full_path_with_number <>
                   "|" <> repo_full_path_with_number <> ">"
-    comment_detail = ""
-    comment_color  = ""
     Logger.info(inspect issue.comments)
+
+    {comment_detail, comment_color} = 
     case is_integer(issue.comments) do
       true ->
         comment_detail = repo_full_path_with_number <> " doesn't have comments yet..."
-        comment_color = "#d29ac6"
+
+        {comment_detail, "#d29ac6"}
       _  ->
-        comment_detail = "comment count:       " <> Integer.to_string(issue.comments["comment_count"]) <> "\n" <>
-                         "participant count:   " <> Integer.to_string(issue.comments["participant_count"])
-        comment_color = "#ddd6ca"
+        comment_detail = "comment count:       " <>
+          Integer.to_string(issue.comments["comment_count"]) <> "\n" <>
+          "participant count:   " <> Integer.to_string(issue.comments["participant_count"])
+        
+        {comment_detail, "#ddd6ca"}
     end
  
     json_data = %{channel:    "#github_extra", 
@@ -44,7 +49,7 @@ defmodule GithubStalking.Slack do
   @doc"""
   """
   def notify_update_issues(repo_full_path) do
-    prob_issues = GithubStalking.Github.Issue.find_issues(repo_full_path)
+    prob_issues = Issue.find_issues(repo_full_path)
     case prob_issues do
       {:ok, issues} ->
         headers = []
@@ -58,7 +63,7 @@ defmodule GithubStalking.Slack do
           [Map.put(Map.from_struct(issue), :is_notified, true)|acc]
         end) 
         
-        GithubStalking.Github.Issue.register_issues(repo_full_path, result)
+        Issue.register_issues(repo_full_path, result)
 
       {:error, _}   ->
           Logger.error "there is no issues..."

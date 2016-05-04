@@ -3,6 +3,9 @@ defmodule GithubStalking.Github.Comment do
   """
   require Logger
 
+  alias GithubStalking.Github.Comment
+  alias GithubStalking.Github.Comments
+
   @client Tentacat.Client.new(%{access_token: System.get_env("access_token")})
 
   @derive [Poison.Encoder]
@@ -19,9 +22,9 @@ defmodule GithubStalking.Github.Comment do
     t_comments = Tentacat.Issues.Comments.list(owner, repo, number, @client)
     comments = Enum.reduce(t_comments, [], fn(t_comment, acc) ->
       n_comment = 
-        for {key, _} <- Map.from_struct(GithubStalking.Github.Comment.__struct__()), into: %{},
+        for {key, _} <- Map.from_struct(Comment.__struct__()), into: %{},
                           do: {key, t_comment[Atom.to_string(key)]}
-      comment = struct(GithubStalking.Github.Comment, n_comment)
+      comment = struct(Comment, n_comment)
       comment = Map.put(comment, :avatar_url, t_comment["user"]["avatar_url"])
       comment = Map.put(comment, :login,      t_comment["user"]["login"])
       comment = Map.put(comment, :updated_at, t_comment["updated_at"])
@@ -44,7 +47,7 @@ defmodule GithubStalking.Github.Comment do
     case obj do
       nil -> {:ok, %{}}
       _   ->
-          stored_comments = Poison.decode!(obj.data, as: %GithubStalking.Github.Comments{})
+          stored_comments = Poison.decode!(obj.data, as: %Comments{})
           {:ok, stored_comments}
     end
   end
@@ -53,12 +56,12 @@ defmodule GithubStalking.Github.Comment do
   """
   def find_comments(issue) do
     repo_full_path = issue.owner <> "/" <> issue.repo
-    prob_stored_comments  = GithubStalking.Github.Comment.find_stored_comments(repo_full_path, issue.number)
-    prob_current_comments = GithubStalking.Github.Comment.find_github_comments(repo_full_path, issue.number)
+    prob_stored_comments  = Comment.find_stored_comments(repo_full_path, issue.number)
+    prob_current_comments = Comment.find_github_comments(repo_full_path, issue.number)
 
-    new_comments = GithubStalking.Github.Comment.find_new_comments(prob_current_comments, prob_stored_comments)
+    new_comments = Comment.find_new_comments(prob_current_comments, prob_stored_comments)
 
-    GithubStalking.Github.Comments.aggregate_comments(issue.number, new_comments)
+    Comments.aggregate_comments(issue.number, new_comments)
   end
 
   @doc"""
@@ -98,9 +101,9 @@ defmodule GithubStalking.Github.Comment do
   defp map_id2comments(comments) do
     Enum.reduce(comments.comments, %{}, fn(comment, acc) ->
       n_comment = 
-        for {key, _} <- Map.from_struct(GithubStalking.Github.Comment.__struct__()), into: %{},
+        for {key, _} <- Map.from_struct(Comment.__struct__()), into: %{},
                           do: {key, comment[Atom.to_string(key)]}
-      s_comment = Map.merge(%GithubStalking.Github.Comment{}, n_comment)
+      s_comment = Map.merge(%Comment{}, n_comment)
       Map.put(acc, comment["id"] ,s_comment)
     end)
   end

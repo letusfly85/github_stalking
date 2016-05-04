@@ -1,7 +1,10 @@
 defmodule GithubStalking.Github.Repository do
   @moduledoc"""
   """
+
   require Logger
+
+  alias GithubStalking.Github.IssueNumbers
 
   @derive [Poison.Encoder]
   defstruct [:id, :owner, :full_name,  :description, :html_url, :stargazers_count, :language,
@@ -25,7 +28,7 @@ defmodule GithubStalking.Github.Repository do
 
       case obj do
         nil ->
-          issues_numbers = %GithubStalking.Github.IssueNumbers{repo_full_path: repo_full_path, numbers: []}
+          issues_numbers = %IssueNumbers{repo_full_path: repo_full_path, numbers: []}
           result = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
           Riak.put(result)
           Logger.info(repo_full_path <> " is registered.")
