@@ -24,12 +24,13 @@ defmodule GithubStalking.Github.Repository do
   @doc"""
   """
   def register_repo(repo_full_path) do
-      obj = Riak.find("issue_numbers", repo_full_path)
+      prob_obj = Riak.find("issue_numbers", repo_full_path)
 
-      case obj do
+      case prob_obj do
         nil ->
           issues_numbers = %IssueNumbers{repo_full_path: repo_full_path, numbers: []}
-          result = Riak.Object.create(bucket: "issue_numbers", key: repo_full_path, data: Poison.encode!(issues_numbers))
+          result = Riak.Object.create(bucket: "issue_numbers",
+            key: repo_full_path, data: Poison.encode!(issues_numbers))
           Riak.put(result)
           Logger.info(repo_full_path <> " is registered.")
           :ok
